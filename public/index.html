@@ -418,13 +418,13 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     </div>
     <div class="form-group">
       <label>Usuário / E-mail</label>
-      <input type="text" id="loginUser" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')doLogin()" />
+      <input type="text" id="loginUser" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')doLogin()" autocomplete="username" />
     </div>
     <div class="form-group">
       <label>Senha de Acesso</label>
-      <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" />
+      <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" autocomplete="current-password" />
     </div>
-    <button class="btn-primary" onclick="doLogin()">ACESSAR SISTEMA</button>
+    <button id="loginBtn" class="btn-primary" onclick="doLogin()">ACESSAR SISTEMA</button>
     <div class="error-msg" id="loginError">Credenciais inválidas. Tente novamente.</div>
   </div>
 </div>
@@ -943,8 +943,18 @@ async function api(method, path, body){
   };
   if(authToken) opts.headers['Authorization'] = 'Bearer ' + authToken;
   if(body)      opts.body = JSON.stringify(body);
-  const res = await fetch(path, opts);
-  const data = await res.json().catch(()=>({}));
+
+  let res;
+  try{
+    res = await fetch(path, opts);
+  } catch(e){
+    throw new Error('Sem conexão com o servidor. Verifique sua internet.');
+  }
+
+  let data;
+  try{ data = await res.json(); }
+  catch(e){ data = {}; }
+
   if(!res.ok) throw new Error(data.error || 'Erro ' + res.status);
   return data;
 }
@@ -977,6 +987,7 @@ async function doLogin(){
   const name     = document.getElementById('loginUser').value.trim();
   const password = document.getElementById('loginPass').value.trim();
   const errEl    = document.getElementById('loginError');
+  const btn      = document.getElementById('loginBtn');
 
   if(!name || !password){
     errEl.textContent = 'Preencha usuário e senha.';
@@ -985,26 +996,23 @@ async function doLogin(){
   }
 
   // Desativa botão durante o login
-  const btn = document.querySelector('#loginScreen .btn-primary');
-  btn.textContent = 'ENTRANDO...';
-  btn.disabled = true;
+  if(btn){ btn.textContent = 'ENTRANDO...'; btn.disabled = true; }
+  errEl.style.display = 'none';
 
   try{
-    const { token, user } = await api('POST', '/api/auth/login', { name, password });
-    authToken   = token;
-    currentUser = user;
-    localStorage.setItem('mdv_token', token);
-    errEl.style.display = 'none';
+    const data = await api('POST', '/api/auth/login', { name, password });
+    authToken   = data.token;
+    currentUser = data.user;
+    localStorage.setItem('mdv_token', data.token);
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     await loadUserData();
     initApp();
   } catch(e){
-    errEl.textContent = e.message || 'Erro ao fazer login.';
+    errEl.textContent = e.message || 'Erro ao fazer login. Tente novamente.';
     errEl.style.display = 'block';
   } finally {
-    btn.textContent = 'ACESSAR SISTEMA';
-    btn.disabled = false;
+    if(btn){ btn.textContent = 'ACESSAR SISTEMA'; btn.disabled = false; }
   }
 }
 
