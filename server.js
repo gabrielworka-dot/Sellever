@@ -16,12 +16,27 @@ const app  = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'mestre_dev_secret_change_in_prod';
 
+// ── Localiza a pasta public de forma robusta ───────────────
+const POSSIBLE_PUBLIC = [
+  path.join(__dirname, 'public'),
+  path.join(process.cwd(), 'public'),
+  path.join(__dirname, '..', 'public'),
+  '/app/public'
+];
+const PUBLIC_DIR = POSSIBLE_PUBLIC.find(p => fs.existsSync(p)) || path.join(__dirname, 'public');
+const INDEX_HTML = path.join(PUBLIC_DIR, 'index.html');
+
+console.log(`📁 Pasta public: ${PUBLIC_DIR}`);
+console.log(`📄 index.html existe: ${fs.existsSync(INDEX_HTML)}`);
+
 // ── Middleware ─────────────────────────────────────────────
-app.use(express.json({ limit: '10mb' })); // 10mb para suportar avatares base64
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.static(PUBLIC_DIR));
 
 // ── Banco de dados (arquivo JSON) ──────────────────────────
-const DB_FILE = path.join(__dirname, 'db.json');
+// Railway tem /app como diretório de trabalho com permissão de escrita
+const DATA_DIR = fs.existsSync('/app') ? '/app' : __dirname;
+const DB_FILE  = path.join(DATA_DIR, 'db.json');
 
 function loadDB() {
   try {
@@ -314,7 +329,7 @@ app.post('/api/analyze', authMiddleware, async (req, res) => {
 
 // Arquivo de dados pessoais por usuário
 function getUserDataFile(userId) {
-  return path.join(__dirname, `userdata_${userId}.json`);
+  return path.join(DATA_DIR, `userdata_${userId}.json`);
 }
 function loadUserData(userId) {
   try {
@@ -357,7 +372,16 @@ app.get('/health', (req, res) => {
 
 // SPA fallback
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  if (fs.existsSync(INDEX_HTML)) {
+    res.sendFile(INDEX_HTML);
+  } else {
+    res.status(500).send(`
+      <h2>⚠️ Arquivo index.html não encontrado</h2>
+      <p>Pasta procurada: ${PUBLIC_DIR}</p>
+      <p>Arquivos no diretório raiz: ${fs.readdirSync(__dirname).join(', ')}</p>
+      <p><strong>Solução:</strong> Certifique-se que a pasta <code>public/</code> com o arquivo <code>index.html</code> foi enviada ao GitHub.</p>
+    `);
+  }
 });
 
 app.listen(PORT, () => {
