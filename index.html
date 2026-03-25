@@ -1,0 +1,2561 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Mestre das Vendas</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#050a12; --bg2:#0a1220; --bg3:#0f1a2e; --card:#0d1828;
+  --border:#1a3a5c; --border2:#0f2a45;
+  --accent:#00d4ff; --accent2:#ff6b35; --accent3:#00ff9d; --gold:#ffd700;
+  --text:#e8f4ff; --text2:#7aa5c8; --text3:#4a7a9b;
+  --glow:0 0 20px rgba(0,212,255,0.3);
+}
+body.light-mode {
+  --bg:#f0f4f8; --bg2:#e2e8f0; --bg3:#cbd5e1; --card:#ffffff;
+  --border:#b0c4de; --border2:#c8d8e8;
+  --text:#1a2a3a; --text2:#3a5a7a; --text3:#7a9ab8;
+  --glow:0 0 20px rgba(0,120,200,0.15);
+}
+body.light-mode body::before{background-image:linear-gradient(rgba(0,100,200,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,100,200,0.04) 1px,transparent 1px);}
+body.light-mode .sidebar{background:linear-gradient(180deg,#1a3a5c 0%,#0f2a45 100%);}
+body.light-mode .sidebar-logo .logo-sub{color:#7aa5c8;}
+body.light-mode .nav-item{color:#a0c0d8;}
+body.light-mode .nav-item:hover{background:rgba(255,255,255,0.1);color:#fff;}
+body.light-mode .nav-item.active{background:rgba(0,212,255,0.2);color:var(--accent);}
+body.light-mode .nav-section{color:#7aa5c8;}
+body.light-mode .logout-btn{color:#7aa5c8;}
+body.light-mode .mobile-topbar{background:linear-gradient(90deg,#1a3a5c,#0f2a45);}
+body.light-mode .analysis-card{box-shadow:0 2px 12px rgba(0,0,0,0.08);}
+body.light-mode .stat-card{box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+body.light-mode .form-group input,body.light-mode .form-group select,body.light-mode .form-group textarea{background:#f8fafc;border-color:#b0c4de;color:var(--text);}
+body.light-mode .form-group input:focus,body.light-mode .form-group select:focus,body.light-mode .form-group textarea:focus{background:#fff;}
+body.light-mode .modal{box-shadow:0 8px 40px rgba(0,0,0,0.15);}
+body.light-mode .history-item{background:#f8fafc;}
+body.light-mode .note-card{background:#f8fafc;}
+body.light-mode .result-box{background:rgba(0,120,200,0.04);border-color:rgba(0,120,200,0.15);}
+
+/* THEME TOGGLE */
+.theme-toggle{display:flex;align-items:center;gap:8px;padding:10px 24px;cursor:pointer;color:var(--text3);font-size:12px;transition:color .2s;}
+.theme-toggle:hover{color:var(--text);}
+.toggle-track{width:36px;height:20px;background:var(--border2);border-radius:10px;position:relative;transition:background .3s;flex-shrink:0;}
+.toggle-track.on{background:var(--accent);}
+.toggle-thumb{width:14px;height:14px;background:#fff;border-radius:50%;position:absolute;top:3px;left:3px;transition:transform .3s;box-shadow:0 1px 3px rgba(0,0,0,0.3);}
+.toggle-track.on .toggle-thumb{transform:translateX(16px);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+
+/* LOGIN */
+#loginScreen{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 40%,#051a35 0%,#050a12 70%);}
+.login-box{width:420px;background:linear-gradient(135deg,#0d1828 0%,#091422 100%);border:1px solid var(--border);border-radius:20px;padding:48px 40px;box-shadow:0 0 60px rgba(0,212,255,0.1),inset 0 1px 0 rgba(255,255,255,0.05);position:relative;overflow:hidden;animation:fadeUp .6s ease;}
+.login-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scanLine 3s infinite;}
+@keyframes scanLine{0%{opacity:.3}50%{opacity:1}100%{opacity:.3}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.logo-login{text-align:center;margin-bottom:36px;}
+.logo-login .icon{font-size:48px;display:block;margin-bottom:12px;filter:drop-shadow(0 0 15px rgba(0,212,255,0.6));}
+.logo-login h1{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;letter-spacing:3px;background:linear-gradient(135deg,var(--accent),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-transform:uppercase;}
+.logo-login span{display:block;font-size:11px;color:var(--text3);letter-spacing:4px;margin-top:4px;text-transform:uppercase;}
+
+/* FORMS */
+.form-group{margin-bottom:18px;}
+.form-group label{display:block;font-size:11px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:8px;}
+.form-group input,.form-group select,.form-group textarea{width:100%;background:rgba(0,212,255,0.04);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:14px;transition:all .3s;outline:none;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent);box-shadow:0 0 15px rgba(0,212,255,0.15);background:rgba(0,212,255,0.07);}
+.form-group select option{background:var(--bg2);}
+.form-group textarea{resize:vertical;min-height:90px;}
+.form-group input:disabled{opacity:.5;cursor:not-allowed;}
+
+/* BUTTONS */
+.btn-primary{width:100%;background:linear-gradient(135deg,#0077aa,#005580);border:1px solid var(--accent);border-radius:10px;padding:14px;color:var(--accent);font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;letter-spacing:3px;cursor:pointer;text-transform:uppercase;transition:all .3s;box-shadow:0 0 20px rgba(0,212,255,0.15);}
+.btn-primary:hover{background:linear-gradient(135deg,#0099cc,#006699);box-shadow:0 0 30px rgba(0,212,255,0.4);transform:translateY(-1px);}
+.btn-add{padding:11px 22px;background:linear-gradient(135deg,rgba(0,212,255,0.15),rgba(0,212,255,0.05));border:1px solid var(--accent);border-radius:10px;color:var(--accent);font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:2px;cursor:pointer;transition:all .3s;}
+.btn-add:hover{box-shadow:0 0 20px rgba(0,212,255,0.3);}
+.btn-sm{padding:6px 14px;border-radius:6px;font-size:11px;font-family:'Exo 2',sans-serif;cursor:pointer;transition:all .2s;border:1px solid;}
+.btn-edit{color:var(--accent);border-color:var(--border);background:rgba(0,212,255,0.05);}
+.btn-edit:hover{background:rgba(0,212,255,0.15);}
+.btn-del{color:#ff6464;border-color:rgba(255,100,100,0.3);background:rgba(255,70,70,0.05);}
+.btn-del:hover{background:rgba(255,70,70,0.15);}
+.btn-cancel{padding:10px 20px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text3);font-family:'Exo 2',sans-serif;cursor:pointer;transition:all .2s;}
+.btn-cancel:hover{color:var(--text);border-color:var(--text2);}
+.btn-save{padding:10px 24px;background:linear-gradient(135deg,rgba(0,212,255,0.2),rgba(0,212,255,0.05));border:1px solid var(--accent);border-radius:8px;color:var(--accent);font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:2px;cursor:pointer;transition:all .3s;}
+.btn-save:hover{box-shadow:0 0 20px rgba(0,212,255,0.3);}
+.error-msg{color:#ff4444;font-size:12px;text-align:center;margin-top:12px;display:none;}
+
+/* SIDEBAR */
+#app{display:none;min-height:100vh;}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:260px;background:linear-gradient(180deg,#0a1525 0%,#060e1c 100%);border-right:1px solid var(--border2);z-index:50;display:flex;flex-direction:column;padding:0;overflow:hidden;}
+.sidebar-scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;}
+.sidebar-scroll::-webkit-scrollbar{width:3px;}
+.sidebar-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.sidebar-logo{padding:22px 24px 18px;border-bottom:1px solid var(--border2);}
+.sidebar-logo .logo-text{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:900;letter-spacing:2px;background:linear-gradient(135deg,var(--accent),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.sidebar-logo .logo-sub{font-size:9px;color:var(--text3);letter-spacing:3px;margin-top:2px;text-transform:uppercase;}
+.sidebar-logo .logo-icon{font-size:24px;margin-bottom:6px;display:block;}
+.sidebar-user{padding:14px 18px;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:12px;cursor:pointer;transition:background .2s;}
+.sidebar-user:hover{background:rgba(0,212,255,0.05);}
+.user-avatar{width:40px;height:40px;border-radius:50%;border:2px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;overflow:hidden;flex-shrink:0;color:var(--accent);}
+.user-avatar img{width:100%;height:100%;object-fit:cover;}
+.user-meta{flex:1;min-width:0;}
+.user-niche{font-size:9px;color:var(--accent2);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;}
+.user-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.usage-bar-wrap{margin-top:5px;}
+.usage-label{display:flex;justify-content:space-between;font-size:9px;color:var(--text3);margin-bottom:4px;}
+.usage-bar{height:3px;background:var(--border2);border-radius:2px;overflow:hidden;}
+.usage-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:2px;transition:width .5s;}
+.nav-section{padding:8px 16px;font-size:9px;letter-spacing:3px;color:var(--text3);text-transform:uppercase;margin-top:8px;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 24px;cursor:pointer;transition:all .2s;border-left:3px solid transparent;font-size:13px;color:var(--text2);}
+.nav-item:hover{background:rgba(0,212,255,0.05);color:var(--text);}
+.nav-item.active{background:rgba(0,212,255,0.08);border-left-color:var(--accent);color:var(--accent);}
+.nav-item .icon{font-size:16px;width:20px;text-align:center;}
+.sidebar-bottom{margin-top:auto;padding:12px 24px 0;border-top:1px solid var(--border2);}
+.logout-btn{display:flex;align-items:center;gap:10px;cursor:pointer;color:var(--text3);font-size:13px;transition:color .2s;padding:8px 0;}
+.logout-btn:hover{color:#ff4444;}
+
+/* MAIN */
+.main{margin-left:260px;min-height:100vh;padding:32px;position:relative;z-index:1;}
+.page{display:none;animation:fadeIn .4s ease;}
+.page.active{display:block;}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:12px;}
+.page-title{font-family:'Orbitron',sans-serif;font-size:20px;font-weight:700;letter-spacing:2px;color:var(--text);}
+.page-title span{color:var(--accent);}
+.page-sub{font-size:13px;color:var(--text3);margin-top:4px;letter-spacing:1px;}
+
+/* STAT CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+.stat-card{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:20px;position:relative;overflow:hidden;transition:border-color .3s,box-shadow .3s;}
+.stat-card:hover{border-color:var(--accent);box-shadow:var(--glow);}
+.stat-card::after{content:'';position:absolute;top:0;right:0;width:60px;height:60px;border-radius:50%;opacity:.06;transform:translate(20px,-20px);}
+.stat-card:nth-child(1)::after{background:var(--accent);}
+.stat-card:nth-child(2)::after{background:var(--accent2);}
+.stat-card:nth-child(3)::after{background:var(--accent3);}
+.stat-card:nth-child(4)::after{background:var(--gold);}
+.stat-label{font-size:10px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:10px;}
+.stat-val{font-family:'Orbitron',sans-serif;font-size:28px;font-weight:700;}
+.stat-val.blue{color:var(--accent);}.stat-val.orange{color:var(--accent2);}.stat-val.green{color:var(--accent3);}.stat-val.gold{color:var(--gold);}
+.stat-delta{font-size:11px;margin-top:6px;color:var(--accent3);}
+
+/* CARDS */
+.analysis-card{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:28px;margin-bottom:20px;position:relative;overflow:hidden;}
+.analysis-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(180deg,var(--accent),var(--accent3));border-radius:4px 0 0 4px;}
+.card-title{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);animation:blink 2s infinite;}
+
+/* ANALYZE */
+.input-types{display:flex;gap:10px;margin-bottom:20px;}
+.type-btn{flex:1;padding:12px 8px;background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:10px;color:var(--text3);font-family:'Exo 2',sans-serif;font-size:12px;cursor:pointer;text-align:center;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.type-btn .icon{font-size:20px;}
+.type-btn:hover{border-color:var(--accent);color:var(--text);}
+.type-btn.active{background:rgba(0,212,255,0.1);border-color:var(--accent);color:var(--accent);}
+.result-box{background:rgba(0,212,255,0.03);border:1px solid rgba(0,212,255,0.15);border-radius:12px;padding:24px;margin-top:20px;display:none;animation:fadeIn .5s ease;}
+.result-box.show{display:block;}
+.result-section{margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border2);}
+.result-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+.result-section h3{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--accent2);margin-bottom:12px;font-family:'Orbitron',sans-serif;}
+.result-section div.res-content{font-size:14px;line-height:1.7;color:var(--text2);white-space:pre-wrap;}
+.loading{display:none;align-items:center;gap:12px;padding:16px;color:var(--accent);font-size:13px;}
+.loading.show{display:flex;}
+.spinner{width:20px;height:20px;border:2px solid rgba(0,212,255,0.2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+.limit-warning{background:rgba(255,107,53,0.1);border:1px solid rgba(255,107,53,0.4);border-radius:10px;padding:14px 18px;color:var(--accent2);font-size:13px;display:none;align-items:center;gap:10px;margin-bottom:16px;}
+.limit-warning.show{display:flex;}
+
+/* HISTORY */
+.history-item{background:rgba(255,255,255,0.02);border:1px solid var(--border2);border-radius:12px;padding:14px 20px;margin-bottom:10px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:14px;}
+.history-item:hover{border-color:var(--accent);background:rgba(0,212,255,0.04);}
+.history-icon{font-size:20px;}
+.history-info{flex:1;}
+.history-title{font-size:14px;font-weight:500;color:var(--text);}
+.history-time{font-size:11px;color:var(--text3);margin-top:2px;}
+.history-badge{font-size:10px;padding:3px 10px;border-radius:20px;font-weight:600;letter-spacing:1px;background:rgba(0,255,157,0.1);color:var(--accent3);border:1px solid rgba(0,255,157,0.3);}
+
+/* NOTES */
+.notes-toolbar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.filter-btn{padding:7px 16px;border-radius:20px;font-size:11px;font-family:'Exo 2',sans-serif;cursor:pointer;transition:all .2s;border:1px solid var(--border2);background:transparent;color:var(--text3);letter-spacing:1px;}
+.filter-btn:hover{color:var(--text);}
+.filter-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,212,255,0.08);}
+.note-card{background:rgba(255,255,255,0.02);border:1px solid var(--border2);border-radius:12px;padding:18px 20px;margin-bottom:12px;transition:all .2s;}
+.note-card:hover{border-color:var(--accent);background:rgba(0,212,255,0.03);}
+.note-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px;}
+.note-card-title{font-size:15px;font-weight:600;color:var(--text);}
+.note-card-date{font-size:10px;color:var(--text3);flex-shrink:0;margin-top:3px;}
+.note-card-body{font-size:13px;color:var(--text2);line-height:1.7;white-space:pre-wrap;}
+.note-card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:12px;}
+.note-tag{display:inline-block;font-size:10px;padding:2px 10px;border-radius:10px;font-weight:600;letter-spacing:1px;}
+.tag-script{background:rgba(0,212,255,0.08);color:var(--accent);border:1px solid rgba(0,212,255,0.25);}
+.tag-objecao{background:rgba(255,107,53,0.08);color:var(--accent2);border:1px solid rgba(255,107,53,0.25);}
+.tag-venda{background:rgba(0,255,157,0.08);color:var(--accent3);border:1px solid rgba(0,255,157,0.25);}
+.tag-geral{background:rgba(255,215,0,0.08);color:var(--gold);border:1px solid rgba(255,215,0,0.25);}
+.note-actions{display:flex;gap:6px;}
+.note-empty{text-align:center;padding:48px 20px;color:var(--text3);}
+.note-empty .big-icon{font-size:42px;display:block;margin-bottom:12px;opacity:.3;}
+
+/* PROFILE */
+.profile-photo-row{display:flex;align-items:center;gap:24px;margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid var(--border2);}
+.profile-avatar-big{width:88px;height:88px;border-radius:50%;border:3px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;overflow:hidden;cursor:pointer;transition:border-color .3s;flex-shrink:0;position:relative;color:var(--accent);}
+.profile-avatar-big:hover{border-color:var(--accent);}
+.profile-avatar-big img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+.avatar-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.55);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;font-size:22px;}
+.profile-avatar-big:hover .avatar-overlay{opacity:1;}
+.profile-info-preview h3{font-size:18px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.profile-info-preview p{font-size:12px;color:var(--text3);}
+.section-divider{border-top:1px solid var(--border2);padding-top:20px;margin-top:4px;margin-bottom:18px;}
+.section-label{font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:2px;color:var(--accent);margin-bottom:16px;}
+.info-msg{font-size:13px;padding:10px 14px;border-radius:8px;margin-bottom:14px;}
+.info-ok{background:rgba(0,255,157,0.08);border:1px solid rgba(0,255,157,0.3);color:var(--accent3);}
+.info-err{background:rgba(255,70,70,0.08);border:1px solid rgba(255,70,70,0.3);color:#ff6464;}
+
+/* ADMIN */
+.user-table{width:100%;border-collapse:collapse;}
+.user-table th{text-align:left;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);padding:10px 14px;border-bottom:1px solid var(--border2);}
+.user-table td{padding:12px 14px;font-size:13px;color:var(--text2);border-bottom:1px solid rgba(255,255,255,0.03);vertical-align:middle;}
+.user-table tr:hover td{background:rgba(0,212,255,0.03);}
+.table-avatar{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;overflow:hidden;color:var(--accent);}
+.table-avatar img{width:100%;height:100%;object-fit:cover;}
+.niche-tag{display:inline-block;background:rgba(255,107,53,0.12);border:1px solid rgba(255,107,53,0.4);color:var(--accent2);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:2px 9px;border-radius:20px;font-family:'Orbitron',sans-serif;}
+.limit-badge{display:inline-block;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);font-size:10px;padding:2px 8px;border-radius:8px;}
+.status-active{color:var(--accent3);}
+.status-inactive{color:var(--text3);}
+.slots-config{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:4px 0;}
+.slots-config label{font-size:12px;color:var(--text3);letter-spacing:1px;}
+.slots-input{width:80px;background:rgba(0,212,255,0.04);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:15px;outline:none;text-align:center;}
+.slots-input:focus{border-color:var(--accent);}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;z-index:500;background:rgba(5,10,18,0.88);display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal-overlay.show{display:flex !important;}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:36px;width:500px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 0 50px rgba(0,212,255,0.15);animation:fadeUp .3s ease;}
+.modal h2{font-family:'Orbitron',sans-serif;font-size:15px;letter-spacing:2px;color:var(--accent);margin-bottom:24px;}
+.modal-actions{display:flex;gap:12px;margin-top:24px;justify-content:flex-end;}
+
+/* IMAGE UPLOAD INPUT */
+.img-upload-zone{border:2px dashed var(--border2);border-radius:12px;padding:28px 20px;text-align:center;cursor:pointer;transition:all .3s;background:rgba(0,212,255,0.02);margin-bottom:14px;}
+.img-upload-zone:hover{border-color:var(--accent);background:rgba(0,212,255,0.05);}
+.img-upload-zone.has-img{border-color:var(--accent3);background:rgba(0,255,157,0.04);}
+.img-upload-icon{font-size:36px;display:block;margin-bottom:10px;opacity:.7;}
+.img-upload-label{font-size:13px;color:var(--text3);display:block;margin-bottom:6px;}
+.img-upload-sub{font-size:11px;color:var(--text3);opacity:.6;}
+.img-preview-wrap{position:relative;display:inline-block;margin-top:12px;}
+.img-preview{max-width:100%;max-height:220px;border-radius:10px;border:1px solid var(--border);display:block;margin:0 auto;}
+.img-remove-btn{position:absolute;top:-8px;right:-8px;background:#ff4444;border:none;border-radius:50%;width:24px;height:24px;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;}
+.img-note{font-size:11px;color:var(--accent3);margin-top:8px;text-align:center;}
+
+/* MOBILE */
+.mobile-topbar{display:none;position:fixed;top:0;left:0;right:0;height:56px;background:linear-gradient(90deg,#0a1525,#060e1c);border-bottom:1px solid var(--border2);z-index:60;align-items:center;justify-content:space-between;padding:0 16px;padding-top:env(safe-area-inset-top,0);}
+.mobile-topbar .mob-logo{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;letter-spacing:2px;background:linear-gradient(135deg,var(--accent),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hamburger{background:none;border:1px solid var(--border2);border-radius:8px;padding:8px 10px;cursor:pointer;color:var(--accent);font-size:18px;line-height:1;transition:all .2s;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;}
+.hamburger:hover{background:rgba(0,212,255,0.1);}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:55;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);}
+.sidebar-overlay.show{display:block;}
+
+/* Touch targets — iOS/Android minimum 44x44 */
+.nav-item{min-height:44px;-webkit-tap-highlight-color:transparent;}
+.btn-primary{min-height:48px;-webkit-tap-highlight-color:transparent;}
+.btn-add{min-height:44px;-webkit-tap-highlight-color:transparent;}
+.btn-sm{min-height:36px;-webkit-tap-highlight-color:transparent;}
+.btn-save,.btn-cancel{min-height:44px;-webkit-tap-highlight-color:transparent;}
+.logout-btn{min-height:44px;-webkit-tap-highlight-color:transparent;}
+.type-btn{min-height:64px;-webkit-tap-highlight-color:transparent;}
+
+/* iOS input zoom fix — font-size 16px prevents auto-zoom on focus */
+@media(max-width:768px){
+  .form-group input,.form-group select,.form-group textarea{font-size:16px;}
+  .sim-input{font-size:16px;}
+}
+
+/* iOS momentum scroll */
+.sim-chat,.main,.modal{-webkit-overflow-scrolling:touch;}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-260px);transition:transform .3s ease;z-index:56;}
+  .sidebar.open{transform:translateX(0);box-shadow:4px 0 20px rgba(0,0,0,0.5);}
+  .mobile-topbar{display:flex;}
+  .main{margin-left:0;padding:16px;padding-top:calc(56px + env(safe-area-inset-top,0px) + 12px);padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:12px;}
+  .input-types{flex-wrap:wrap;}
+  .type-btn{min-width:calc(50% - 5px);flex:unset;}
+  .page-header{margin-bottom:20px;flex-direction:column;align-items:flex-start;}
+  .page-title{font-size:18px;}
+  .analysis-card{padding:16px;}
+  .user-table{font-size:12px;}
+  .user-table th,.user-table td{padding:8px 8px;}
+  .stats-grid{margin-bottom:16px;}
+  .login-box{width:95vw;padding:32px 20px;}
+  .crm-summary{grid-template-columns:repeat(3,1fr);}
+  .crm-board{grid-template-columns:1fr;}
+  .modal{padding:24px 18px;max-height:88vh;}
+  .modal-actions{flex-direction:column-reverse;gap:8px;}
+  .modal-actions button{width:100%;text-align:center;}
+  .scripts-grid{grid-template-columns:1fr;}
+  .sim-steps{gap:4px;}
+  .sim-step{font-size:9px;padding:4px 8px;}
+  .crm-sum-label{font-size:9px;}
+  .page-header .btn-add{width:100%;}
+  /* Form grid in CRM modal — single column on mobile */
+  #crmModal .modal [style*="grid"]{display:flex;flex-direction:column;gap:0;}
+}
+
+/* RESULT ANIMATIONS */
+@keyframes slideInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes countUp{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+@keyframes glowPulse{0%,100%{box-shadow:0 0 0 rgba(0,212,255,0)}50%{box-shadow:0 0 20px rgba(0,212,255,0.4)}}
+.result-section.animate{animation:slideInUp .5s ease forwards;opacity:0;}
+.result-section:nth-child(1).animate{animation-delay:.1s}
+.result-section:nth-child(2).animate{animation-delay:.35s}
+.result-section:nth-child(3).animate{animation-delay:.6s}
+.result-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,255,157,0.1);border:1px solid rgba(0,255,157,0.3);color:var(--accent3);font-size:11px;padding:4px 12px;border-radius:20px;font-family:'Orbitron',sans-serif;letter-spacing:1px;margin-bottom:12px;animation:countUp .4s ease .8s both;}
+
+/* SCRIPT LIBRARY */
+.scripts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+.script-card{background:rgba(255,255,255,0.02);border:1px solid var(--border2);border-radius:12px;padding:18px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;}
+.script-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(180deg,var(--accent),var(--accent3));border-radius:3px 0 0 3px;}
+.script-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--glow);}
+.script-card-nicho{font-size:9px;letter-spacing:2px;color:var(--accent2);text-transform:uppercase;margin-bottom:8px;font-family:'Orbitron',sans-serif;}
+.script-card-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px;}
+.script-card-preview{font-size:12px;color:var(--text3);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.script-card-tag{display:inline-block;margin-top:10px;font-size:10px;padding:2px 8px;border-radius:8px;background:rgba(0,212,255,0.08);color:var(--accent);border:1px solid rgba(0,212,255,0.2);}
+.scripts-filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.script-detail-overlay{position:fixed;inset:0;z-index:400;background:rgba(5,10,18,0.92);display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
+.script-detail-overlay.show{display:flex;}
+.script-detail-box{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:36px;width:620px;max-width:95vw;max-height:88vh;overflow-y:auto;box-shadow:0 0 60px rgba(0,212,255,0.15);animation:fadeUp .3s ease;}
+.script-detail-title{font-family:'Orbitron',sans-serif;font-size:16px;color:var(--accent);margin-bottom:6px;}
+.script-detail-nicho{font-size:11px;color:var(--accent2);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;}
+.script-detail-body{font-size:14px;line-height:1.8;color:var(--text2);white-space:pre-wrap;}
+.script-copy-btn{margin-top:20px;padding:10px 24px;background:linear-gradient(135deg,rgba(0,212,255,0.15),rgba(0,212,255,0.05));border:1px solid var(--accent);border-radius:8px;color:var(--accent);font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:2px;cursor:pointer;transition:all .3s;}
+.script-copy-btn:hover{box-shadow:0 0 20px rgba(0,212,255,0.3);}
+.script-close-btn{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--text3);font-size:22px;cursor:pointer;transition:color .2s;line-height:1;}
+.script-close-btn:hover{color:var(--text);}
+
+/* ERROR MAP */
+.error-map-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+.error-bar-item{background:rgba(255,255,255,0.02);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;}
+.error-bar-label{font-size:12px;color:var(--text2);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+.error-bar-label span{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--accent2);}
+.error-bar-track{height:6px;background:var(--border2);border-radius:3px;overflow:hidden;}
+.error-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent2),var(--gold));transition:width 1s ease;}
+.error-map-empty{text-align:center;padding:32px;color:var(--text3);font-size:13px;}
+
+/* SIMULATOR */
+.sim-chat{background:rgba(0,0,0,0.2);border:1px solid var(--border2);border-radius:12px;padding:16px;margin-bottom:16px;min-height:200px;max-height:360px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
+.sim-msg{max-width:80%;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.5;animation:slideInUp .3s ease;}
+.sim-msg.client{background:rgba(255,107,53,0.1);border:1px solid rgba(255,107,53,0.2);color:var(--text2);align-self:flex-start;border-radius:4px 12px 12px 12px;}
+.sim-msg.client::before{content:'👤 Cliente: ';font-weight:700;color:var(--accent2);display:block;font-size:11px;margin-bottom:3px;}
+.sim-msg.user{background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);color:var(--text);align-self:flex-end;border-radius:12px 4px 12px 12px;}
+.sim-msg.user::before{content:'💼 Você: ';font-weight:700;color:var(--accent);display:block;font-size:11px;margin-bottom:3px;}
+.sim-msg.feedback{background:rgba(0,255,157,0.06);border:1px solid rgba(0,255,157,0.2);color:var(--accent3);align-self:stretch;border-radius:8px;font-size:12px;}
+.sim-msg.feedback.bad{background:rgba(255,70,70,0.06);border-color:rgba(255,70,70,0.2);color:#ff8080;}
+.sim-input-row{display:flex;gap:10px;}
+.sim-input{flex:1;background:rgba(0,212,255,0.04);border:1px solid var(--border2);border-radius:10px;padding:11px 14px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:14px;outline:none;transition:border-color .3s;}
+.sim-input:focus{border-color:var(--accent);}
+.sim-send{padding:11px 20px;background:linear-gradient(135deg,rgba(0,212,255,0.2),rgba(0,212,255,0.05));border:1px solid var(--accent);border-radius:10px;color:var(--accent);font-size:18px;cursor:pointer;transition:all .2s;flex-shrink:0;}
+.sim-send:hover{box-shadow:0 0 15px rgba(0,212,255,0.3);}
+.sim-score{text-align:center;padding:24px;animation:countUp .5s ease;}
+.sim-score-num{font-family:'Orbitron',sans-serif;font-size:56px;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:block;animation:glowPulse 2s infinite;}
+.sim-score-label{font-size:13px;color:var(--text3);margin-top:6px;}
+.sim-steps{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;}
+.sim-step{padding:4px 12px;border-radius:20px;font-size:10px;font-family:'Orbitron',sans-serif;letter-spacing:1px;border:1px solid var(--border2);color:var(--text3);}
+.sim-step.done{background:rgba(0,255,157,0.1);border-color:rgba(0,255,157,0.4);color:var(--accent3);}
+.sim-step.active{background:rgba(0,212,255,0.1);border-color:var(--accent);color:var(--accent);animation:glowPulse 1.5s infinite;}
+
+/* CRM */
+.crm-summary{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:20px;}
+.crm-sum-card{background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:14px 12px;text-align:center;transition:all .2s;cursor:pointer;}
+.crm-sum-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+.crm-sum-icon{font-size:22px;display:block;margin-bottom:6px;}
+.crm-sum-count{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:700;display:block;}
+.crm-sum-label{font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-top:3px;display:block;}
+.crm-board{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.crm-col{background:var(--card);border:1px solid var(--border2);border-radius:14px;overflow:hidden;}
+.crm-col-header{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border2);}
+.crm-col-title{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;}
+.crm-col-count{font-size:11px;padding:2px 9px;border-radius:10px;font-weight:700;}
+.crm-col-body{padding:10px;min-height:100px;display:flex;flex-direction:column;gap:8px;}
+.crm-card{background:rgba(255,255,255,0.03);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .2s;}
+.crm-card:hover{border-color:var(--accent);background:rgba(0,212,255,0.04);}
+.crm-card-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.crm-card-wpp{font-size:12px;color:var(--text3);margin-bottom:6px;}
+.crm-card-meta{display:flex;gap:6px;flex-wrap:wrap;}
+.crm-tag{font-size:10px;padding:2px 8px;border-radius:6px;font-weight:500;background:rgba(0,212,255,0.08);color:var(--text3);border:1px solid var(--border2);}
+.crm-card-valor{font-size:12px;color:var(--accent3);font-weight:600;margin-top:6px;}
+.crm-card-actions{display:flex;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border2);}
+.crm-empty{text-align:center;padding:24px 10px;color:var(--text3);font-size:12px;}
+.col-chegada .crm-col-title{color:#7aa5c8;}.col-chegada .crm-col-count{background:rgba(122,165,200,0.15);color:#7aa5c8;}
+.col-agendamento .crm-col-title{color:var(--accent);}.col-agendamento .crm-col-count{background:rgba(0,212,255,0.12);color:var(--accent);}
+.col-proposta .crm-col-title{color:var(--gold);}.col-proposta .crm-col-count{background:rgba(255,215,0,0.12);color:var(--gold);}
+.col-fechado .crm-col-title{color:var(--accent3);}.col-fechado .crm-col-count{background:rgba(0,255,157,0.12);color:var(--accent3);}
+.col-perdido .crm-col-title{color:#ff6464;}.col-perdido .crm-col-count{background:rgba(255,70,70,0.12);color:#ff6464;}
+.col-followup .crm-col-title{color:var(--accent2);}.col-followup .crm-col-count{background:rgba(255,107,53,0.12);color:var(--accent2);}
+
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:var(--bg2);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--accent);}
+@media(max-width:768px){
+  .crm-summary{grid-template-columns:repeat(3,1fr);}
+  .crm-board{grid-template-columns:1fr;}
+}
+</style>
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#050a12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mestre das Vendas">
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="logo-login">
+      <span class="icon">⚡</span>
+      <h1>Mestre das Vendas</h1>
+      <span>Sistema de Inteligência Comercial</span>
+    </div>
+    <div class="form-group">
+      <label>Usuário / E-mail</label>
+      <input type="text" id="loginUser" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')doLogin()" />
+    </div>
+    <div class="form-group">
+      <label>Senha de Acesso</label>
+      <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" />
+    </div>
+    <button class="btn-primary" onclick="doLogin()">ACESSAR SISTEMA</button>
+    <div class="error-msg" id="loginError">Credenciais inválidas. Tente novamente.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+
+  <!-- MOBILE TOP BAR -->
+  <div class="mobile-topbar">
+    <button class="hamburger" onclick="toggleSidebar()">☰</button>
+    <span class="mob-logo">⚡ MESTRE DAS VENDAS</span>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="user-avatar" id="mobAvatar" style="width:34px;height:34px;font-size:13px;cursor:pointer;-webkit-tap-highlight-color:transparent" onclick="navTo('profile')">?</div>
+      <button onclick="doLogout()" style="background:none;border:1px solid rgba(255,100,100,0.3);border-radius:8px;padding:6px 10px;color:#ff8080;font-size:12px;cursor:pointer;min-width:44px;min-height:44px;-webkit-tap-highlight-color:transparent" title="Sair">🚪</button>
+    </div>
+  </div>
+
+  <!-- SIDEBAR OVERLAY -->
+  <div class="sidebar-overlay" id="sideOverlay" onclick="closeSidebar()"></div>
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-icon">⚡</span>
+      <div class="logo-text">MESTRE DAS VENDAS</div>
+      <div class="logo-sub">Sales Intelligence</div>
+    </div>
+    <div class="sidebar-scroll">
+      <div class="sidebar-user" onclick="navTo('profile')">
+        <div class="user-avatar" id="sideAvatar">?</div>
+        <div class="user-meta">
+          <div class="user-niche" id="sideNiche">Nicho: —</div>
+          <div class="user-name" id="sideUser">Usuário</div>
+          <div class="usage-bar-wrap">
+            <div class="usage-label"><span>Análises</span><span id="usageCount">0/10</span></div>
+            <div class="usage-bar"><div class="usage-fill" id="usageFill" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="nav-section">Menu Principal</div>
+      <div class="nav-item active" id="nav-dashboard" onclick="navTo('dashboard',this)"><span class="icon">📊</span> Dashboard</div>
+      <div class="nav-item" id="nav-analyze" onclick="navTo('analyze',this)"><span class="icon">🔍</span> Nova Análise</div>
+      <div class="nav-item" id="nav-history" onclick="navTo('history',this)"><span class="icon">📋</span> Histórico</div>
+      <div class="nav-item" id="nav-notes" onclick="navTo('notes',this)"><span class="icon">📓</span> Bloco de Notas</div>
+      <div class="nav-item" id="nav-scripts" onclick="navTo('scripts',this)"><span class="icon">📚</span> Biblioteca</div>
+      <div class="nav-item" id="nav-crm" onclick="navTo('crm',this)"><span class="icon">🎯</span> CRM</div>
+      <div class="nav-item" id="nav-simulator" onclick="navTo('simulator',this)"><span class="icon">🎮</span> Simulador</div>
+      <div class="nav-section">Configurações</div>
+      <div class="nav-item" id="nav-profile" onclick="navTo('profile',this)"><span class="icon">👤</span> Meu Perfil</div>
+      <div class="nav-item" id="adminNav" onclick="navTo('admin',this)" style="display:none"><span class="icon">⚙️</span> Gerenciar Usuários</div>
+    </div>
+    <div class="sidebar-bottom">
+      <div class="theme-toggle" onclick="toggleTheme()">
+        <div class="toggle-track" id="themeTrack"><div class="toggle-thumb"></div></div>
+        <span id="themeLabel">Modo Claro</span>
+      </div>
+      <div class="logout-btn" onclick="doLogout()"><span>🚪</span> Sair do Sistema</div>
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Dashboard <span id="dashNiche"></span></div>
+          <div class="page-sub">Visão geral do seu desempenho comercial</div>
+        </div>
+        <button class="btn-add" onclick="navTo('analyze')">+ NOVA ANÁLISE</button>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Análises Realizadas</div><div class="stat-val blue" id="statTotal">0</div><div class="stat-delta">↑ Total</div></div>
+        <div class="stat-card"><div class="stat-label">Análises Restantes</div><div class="stat-val orange" id="statRemaining">10</div><div class="stat-delta">Do seu plano</div></div>
+        <div class="stat-card"><div class="stat-label">Scripts Gerados</div><div class="stat-val green" id="statScripts">0</div><div class="stat-delta">Prontos para usar</div></div>
+        <div class="stat-card"><div class="stat-label">Notas Salvas</div><div class="stat-val gold" id="statNotes">0</div><div class="stat-delta">No bloco de notas</div></div>
+      </div>
+      <div class="analysis-card">
+        <div class="card-title"><div class="dot"></div> Últimas Análises</div>
+        <div id="dashHistory"><p style="color:var(--text3);font-size:13px;">Nenhuma análise ainda. Clique em <strong style="color:var(--accent)">Nova Análise</strong> para começar.</p></div>
+      </div>
+    </div>
+
+    <!-- ANÁLISE -->
+    <div class="page" id="page-analyze">
+      <div class="page-header">
+        <div><div class="page-title">Nova <span>Análise</span></div><div class="page-sub">Envie a conversa para análise inteligente</div></div>
+      </div>
+      <div class="limit-warning" id="limitWarn">⚠️ Você atingiu o limite de análises. Contate o administrador para ampliar.</div>
+      <div class="analysis-card">
+        <div class="card-title"><div class="dot"></div> Tipo de Entrada</div>
+        <div class="input-types">
+          <div class="type-btn active" id="btn-text" onclick="setType('text')"><span class="icon">💬</span>Conversa</div>
+          <div class="type-btn" id="btn-desc" onclick="setType('desc')"><span class="icon">📝</span>Descrição</div>
+          <div class="type-btn" id="btn-audio" onclick="setType('audio')"><span class="icon">🎙️</span>Áudio</div>
+          <div class="type-btn" id="btn-hypo" onclick="setType('hypo')"><span class="icon">💡</span>Hipotético</div>
+          <div class="type-btn" id="btn-img" onclick="setType('img')"><span class="icon">📸</span>Print</div>
+        </div>
+        <div id="inputText"><div class="form-group"><label>Cole o texto da conversa</label><textarea id="convText" placeholder="Ex:&#10;Cliente: Quanto custa o lash?&#10;Atendente: R$150&#10;Cliente: Tá caro, obrigada..."></textarea></div></div>
+        <div id="inputDesc" style="display:none"><div class="form-group"><label>Descreva a situação da cliente</label><textarea id="convDesc" placeholder="Ex: A cliente perguntou o preço direto, a atendente passou sem fazer perguntas..."></textarea></div></div>
+        <div id="inputAudio" style="display:none"><div class="form-group"><label>Transcrição do áudio</label><textarea id="convAudio" placeholder="Cole aqui a transcrição do áudio da conversa..."></textarea></div></div>
+        <div id="inputHypo" style="display:none"><div class="form-group"><label>Cenário hipotético</label><textarea id="convHypo" placeholder="Ex: Como atender uma cliente que pergunta sobre extensão de cílios pelo Instagram?"></textarea></div></div>
+
+        <div id="inputImg" style="display:none">
+          <div class="form-group">
+            <label>Print da Conversa</label>
+            <div class="img-upload-zone" id="imgDropZone" onclick="document.getElementById('convImgFile').click()" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+              <span class="img-upload-icon">📸</span>
+              <span class="img-upload-label">Clique ou arraste o print aqui</span>
+              <span class="img-upload-sub">JPG, PNG, WEBP — máx. 4MB</span>
+              <div class="img-preview-wrap" id="imgPreviewWrap" style="display:none">
+                <img id="imgPreview" class="img-preview" src="" alt="preview">
+                <button class="img-remove-btn" onclick="removeImg(event)">×</button>
+              </div>
+            </div>
+            <input type="file" id="convImgFile" accept="image/*" style="display:none" onchange="handleImgSelect(event)">
+            <p class="img-note">A IA lerá a imagem e analisará a conversa automaticamente</p>
+          </div>
+          <div class="form-group">
+            <label>Contexto adicional <span style="color:var(--text3);font-size:10px">(opcional)</span></label>
+            <textarea id="convImgContext" placeholder="Ex: Atendente nova, cliente perguntou sobre preço de extensão..." style="min-height:60px"></textarea>
+          </div>
+        </div>
+        <button class="btn-primary" style="max-width:260px" onclick="runAnalysis()">⚡ ANALISAR AGORA</button>
+        <div class="loading" id="loadingBox"><div class="spinner"></div> Analisando com IA...</div>
+        <div class="result-box" id="resultBox">
+          <div class="result-section"><h3>🔎 Erros Identificados</h3><div class="res-content" id="resErrors"></div></div>
+          <div class="result-section"><h3>🔄 Como Contornar</h3><div class="res-content" id="resReverse"></div></div>
+          <div class="result-section">
+            <h3>🚀 Script de Atendimento Ideal</h3>
+            <div class="res-content" id="resScript"></div>
+            <button class="btn-add" style="margin-top:16px;font-size:11px" onclick="saveResultToNotes()">📓 SALVAR NO BLOCO DE NOTAS</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTÓRICO -->
+    <div class="page" id="page-history">
+      <div class="page-header"><div><div class="page-title"><span>Histórico</span> de Análises</div><div class="page-sub">Todas as análises realizadas</div></div></div>
+      <div class="analysis-card">
+        <div class="card-title"><div class="dot"></div> Registros</div>
+        <div id="historyList"><p style="color:var(--text3);font-size:13px;">Nenhuma análise no histórico.</p></div>
+      </div>
+    </div>
+
+    <!-- BLOCO DE NOTAS -->
+    <div class="page" id="page-notes">
+      <div class="page-header">
+        <div><div class="page-title">Bloco de <span>Notas</span></div><div class="page-sub">Salve as melhores respostas para reusar a qualquer momento</div></div>
+        <button class="btn-add" onclick="openNoteModal()">+ NOVA NOTA</button>
+      </div>
+      <div class="analysis-card">
+        <div class="card-title"><div class="dot"></div> Suas Notas</div>
+        <div class="notes-toolbar">
+          <button class="filter-btn active" id="filter-all" onclick="filterNotes('',this)">Todas</button>
+          <button class="filter-btn" id="filter-script" onclick="filterNotes('script',this)">Scripts</button>
+          <button class="filter-btn" id="filter-objecao" onclick="filterNotes('objecao',this)">Objeções</button>
+          <button class="filter-btn" id="filter-venda" onclick="filterNotes('venda',this)">Vendas</button>
+          <button class="filter-btn" id="filter-geral" onclick="filterNotes('geral',this)">Geral</button>
+        </div>
+        <div id="notesList"></div>
+      </div>
+    </div>
+
+    <!-- PERFIL -->
+    <div class="page" id="page-profile">
+      <div class="page-header"><div><div class="page-title">Meu <span>Perfil</span></div><div class="page-sub">Personalize sua conta e altere suas credenciais</div></div></div>
+      <div class="analysis-card" style="max-width:520px">
+        <div class="card-title"><div class="dot"></div> Foto e Nome</div>
+        <div class="profile-photo-row">
+          <div class="profile-avatar-big" id="profileAvatarBig" onclick="document.getElementById('avatarInput').click()">
+            <span id="profileAvatarLetter">?</span>
+            <div class="avatar-overlay">📷</div>
+          </div>
+          <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)">
+          <div class="profile-info-preview">
+            <h3 id="profilePreviewName">—</h3>
+            <p id="profilePreviewNiche">—</p>
+            <p style="font-size:11px;color:var(--text3);margin-top:8px;">Clique na foto para alterar a imagem</p>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Nome de Exibição</label>
+          <input type="text" id="profileDisplayInput" placeholder="Como quer ser chamado(a)" />
+        </div>
+        <div class="form-group">
+          <label>Nicho</label>
+          <div id="profileNicheField"></div>
+        </div>
+        <div class="section-divider">
+          <div class="section-label">🔒 ALTERAR CREDENCIAIS DE ACESSO</div>
+        </div>
+        <div class="form-group">
+          <label>Login / E-mail</label>
+          <input type="text" id="profileLoginInput" placeholder="Seu login de acesso" />
+        </div>
+        <div class="form-group">
+          <label>Senha Atual <span style="color:var(--text3);font-size:10px">(obrigatório para salvar)</span></label>
+          <input type="password" id="profileOldPass" placeholder="Confirme com sua senha atual" />
+        </div>
+        <div class="form-group">
+          <label>Nova Senha <span style="color:var(--text3);font-size:10px">(deixe vazio para não alterar)</span></label>
+          <input type="password" id="profileNewPass" placeholder="Nova senha" />
+        </div>
+        <div class="form-group">
+          <label>Confirmar Nova Senha</label>
+          <input type="password" id="profileConfPass" placeholder="Repita a nova senha" />
+        </div>
+        <div id="profileMsg" style="display:none" class="info-msg"></div>
+        <button class="btn-primary" style="max-width:220px" onclick="saveProfile()">💾 SALVAR ALTERAÇÕES</button>
+      </div>
+    </div>
+
+    <!-- ADMIN -->
+    <div class="page" id="page-admin">
+      <div class="page-header">
+        <div><div class="page-title">Gerenciar <span>Usuários</span></div><div class="page-sub">Controle de acessos, slots e limites de uso</div></div>
+        <button class="btn-add" onclick="openAddUser()">+ NOVO USUÁRIO</button>
+      </div>
+      <!-- DIAGNÓSTICO -->
+      <div class="analysis-card" style="margin-bottom:16px;border-color:rgba(255,215,0,0.3)">
+        <div class="card-title" style="color:var(--gold)"><div class="dot" style="background:var(--gold);box-shadow:0 0 10px var(--gold)"></div> Diagnóstico de Armazenamento</div>
+        <div id="storageDiag" style="font-size:13px;color:var(--text2);margin-bottom:12px"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn-sm btn-edit" onclick="runDiagnostic()">🔍 Verificar Agora</button>
+          <button class="btn-sm btn-edit" onclick="repairStorage()" style="color:var(--accent3);border-color:rgba(0,255,157,0.3)">🔧 Reparar Storage</button>
+          <button class="btn-sm btn-del" onclick="exportUsers()">📤 Exportar Usuários</button>
+          <button class="btn-sm btn-edit" onclick="importUsers()" style="color:var(--gold);border-color:rgba(255,215,0,0.3)">📥 Importar Usuários</button>
+          <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+        </div>
+      </div>
+      <div class="analysis-card" style="margin-bottom:16px">
+        <div class="card-title"><div class="dot"></div> Slots de Usuários</div>
+        <div class="slots-config">
+          <label>Máximo de clientes na plataforma:</label>
+          <input type="number" class="slots-input" id="globalSlots" min="1" value="10" />
+          <button class="btn-save" onclick="saveGlobalSlots()">SALVAR</button>
+          <span id="slotsUsedInfo" style="font-size:12px;color:var(--text3)"></span>
+        </div>
+      </div>
+      <div class="analysis-card">
+        <div class="card-title"><div class="dot"></div> Usuários Cadastrados</div>
+        <table class="user-table">
+          <thead><tr><th>Usuário</th><th>Nome</th><th>Nicho</th><th>Limite</th><th>Uso</th><th>Status</th><th>Ações</th></tr></thead>
+          <tbody id="userTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- BIBLIOTECA DE SCRIPTS -->
+    <div class="page" id="page-scripts">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Biblioteca de <span>Scripts</span></div>
+          <div class="page-sub" id="scriptsPageSub">Scripts prontos para usar no atendimento</div>
+        </div>
+      </div>
+      <div class="analysis-card">
+        <div class="card-title"><div class="dot"></div> <span id="scriptsCardTitle">Scripts Disponíveis</span></div>
+        <div class="scripts-filter" id="scriptsFilter"></div>
+        <div class="scripts-grid" id="scriptsGrid"></div>
+      </div>
+    </div>
+
+    <!-- CRM -->
+    <div class="page" id="page-crm">
+      <div class="page-header">
+        <div><div class="page-title">CRM de <span>Leads</span></div><div class="page-sub">Acompanhe cada lead do primeiro contato ao fechamento</div></div>
+        <button class="btn-add" onclick="openCrmModal()">+ NOVO LEAD</button>
+      </div>
+
+      <!-- KANBAN SUMMARY -->
+      <div class="crm-summary" id="crmSummary"></div>
+
+      <!-- KANBAN COLUMNS -->
+      <div class="crm-board" id="crmBoard"></div>
+    </div>
+
+    <!-- SIMULADOR -->
+    <div class="page" id="page-simulator">
+      <div class="page-header">
+        <div><div class="page-title">Simulador de <span>Atendimento</span></div><div class="page-sub" id="simPageSub">Treine com situações reais do seu nicho</div></div>
+      </div>
+
+      <!-- SELETOR DE CENÁRIO -->
+      <div class="analysis-card" id="simSelectorCard">
+        <div class="card-title"><div class="dot"></div> Escolha o Cenário de Treino</div>
+        <div id="simScenarioList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:4px;"></div>
+      </div>
+
+      <!-- TREINO ATIVO -->
+      <div class="analysis-card" id="simTrainingCard" style="display:none">
+        <div class="card-title"><div class="dot"></div> <span id="simScenarioTitle">Treino em Andamento</span></div>
+        <div class="sim-steps">
+          <div class="sim-step active" id="simStep0">1. Apresentação</div>
+          <div class="sim-step" id="simStep1">2. Levantamento</div>
+          <div class="sim-step" id="simStep2">3. Valorização</div>
+          <div class="sim-step" id="simStep3">4. Preço</div>
+          <div class="sim-step" id="simStep4">5. Fechamento</div>
+        </div>
+        <div class="sim-chat" id="simChat"></div>
+        <div class="sim-input-row" id="simInputRow">
+          <input class="sim-input" id="simInput" placeholder="Digite sua resposta como atendente..." onkeydown="if(event.key==='Enter')sendSimMsg()" />
+          <button class="sim-send" onclick="sendSimMsg()">➤</button>
+        </div>
+        <div class="sim-score" id="simScore" style="display:none">
+          <span class="sim-score-num" id="simScoreNum">0</span>
+          <div class="sim-score-label">Pontuação do Atendimento</div>
+          <p id="simScoreFeedback" style="font-size:13px;color:var(--text2);margin-top:12px;line-height:1.6;max-width:500px;margin-inline:auto;"></p>
+          <div style="display:flex;gap:12px;justify-content:center;margin-top:16px;flex-wrap:wrap">
+            <button class="script-copy-btn" onclick="startSimulator(simState.scenarioId)">🔄 REPETIR CENÁRIO</button>
+            <button class="script-copy-btn" style="border-color:var(--accent2);color:var(--accent2)" onclick="showSimSelector()">← ESCOLHER OUTRO</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- SCRIPT DETAIL OVERLAY -->
+  <div class="script-detail-overlay" id="scriptDetailOverlay" onclick="if(event.target===this)this.classList.remove('show')">
+    <div class="script-detail-box" style="position:relative">
+      <button class="script-close-btn" onclick="document.getElementById('scriptDetailOverlay').classList.remove('show')">×</button>
+      <div class="script-detail-nicho" id="sdNicho"></div>
+      <div class="script-detail-title" id="sdTitle"></div>
+      <div class="script-detail-body" id="sdBody"></div>
+      <button class="script-copy-btn" onclick="copyScript()">📋 COPIAR SCRIPT</button>
+    </div>
+  </div>
+
+  <!-- MODAL NOVO USUÁRIO -->
+  <div class="modal-overlay" id="addUserModal" onclick="if(event.target===this)closeModal('addUserModal')">
+    <div class="modal">
+      <h2>⚡ NOVO USUÁRIO</h2>
+      <div class="form-group"><label>Login / E-mail *</label><input type="text" id="newUserName" placeholder="login@email.com" /></div>
+      <div class="form-group"><label>Senha *</label><input type="password" id="newUserPass" placeholder="Senha de acesso" /></div>
+      <div class="form-group"><label>Nome de Exibição</label><input type="text" id="newUserDisplayName" placeholder="Nome do cliente" /></div>
+      <div class="form-group">
+        <label>Nicho do Cliente *</label>
+        <select id="newUserNiche">
+          <option value="">Selecione o nicho...</option>
+          <option>Estética & Beleza</option><option>Lash Designer</option><option>Barbearia</option>
+          <option>Clínica de Estética</option><option>Personal Trainer</option><option>Nutrição</option>
+          <option>Advocacia</option><option>Imobiliária</option><option>E-commerce</option>
+          <option>Consultoria</option><option>Odontologia</option><option>Moda & Vestuário</option>
+          <option>Academia & Fitness</option><option>Estúdio de Produção Musical</option>
+          <option>Restaurante & Lanchonete</option><option>Agência de Marketing</option>
+          <option>Loja de Carros</option><option>Loja de Móveis Planejados</option><option>Outros</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Limite de Análises</label>
+        <select id="newUserLimit">
+          <option value="10">10 análises</option>
+          <option value="30">30 análises</option>
+          <option value="50">50 análises</option>
+          <option value="100">100 análises</option>
+          <option value="999">Ilimitado</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal('addUserModal')">Cancelar</button>
+        <button class="btn-save" onclick="saveNewUser()">CRIAR USUÁRIO</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EDITAR USUÁRIO -->
+  <div class="modal-overlay" id="editUserModal" onclick="if(event.target===this)closeModal('editUserModal')">
+    <div class="modal">
+      <h2>✏️ EDITAR USUÁRIO</h2>
+      <input type="hidden" id="editUserId" />
+      <div class="form-group"><label>Login / E-mail</label><input type="text" id="editUserName" /></div>
+      <div class="form-group"><label>Nova Senha <span style="color:var(--text3);font-size:10px">(vazio = não altera)</span></label><input type="password" id="editUserPass" placeholder="Nova senha" /></div>
+      <div class="form-group"><label>Nome de Exibição</label><input type="text" id="editUserDisplayName" /></div>
+      <div class="form-group">
+        <label>Nicho</label>
+        <select id="editUserNiche">
+          <option>Estética & Beleza</option><option>Lash Designer</option><option>Barbearia</option>
+          <option>Clínica de Estética</option><option>Personal Trainer</option><option>Nutrição</option>
+          <option>Advocacia</option><option>Imobiliária</option><option>E-commerce</option>
+          <option>Consultoria</option><option>Odontologia</option><option>Moda & Vestuário</option>
+          <option>Academia & Fitness</option><option>Estúdio de Produção Musical</option>
+          <option>Restaurante & Lanchonete</option><option>Agência de Marketing</option>
+          <option>Loja de Carros</option><option>Loja de Móveis Planejados</option><option>Outros</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Limite de Análises</label>
+        <select id="editUserLimit">
+          <option value="10">10 análises</option>
+          <option value="30">30 análises</option>
+          <option value="50">50 análises</option>
+          <option value="100">100 análises</option>
+          <option value="999">Ilimitado</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal('editUserModal')">Cancelar</button>
+        <button class="btn-save" onclick="saveEditUser()">SALVAR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CRM LEAD -->
+  <div class="modal-overlay" id="crmModal" onclick="if(event.target===this)closeModal('crmModal')">
+    <div class="modal" style="width:580px">
+      <h2 id="crmModalTitle">🎯 NOVO LEAD</h2>
+      <input type="hidden" id="crmLeadId" />
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">
+        <div class="form-group">
+          <label>Nome Completo *</label>
+          <input type="text" id="crmNome" placeholder="Nome do lead" />
+        </div>
+        <div class="form-group">
+          <label>WhatsApp *</label>
+          <input type="text" id="crmWhatsapp" placeholder="(11) 99999-9999" />
+        </div>
+        <div class="form-group">
+          <label>Dia que entrou em contato</label>
+          <input type="date" id="crmData" />
+        </div>
+        <div class="form-group">
+          <label>Como chegou até você</label>
+          <select id="crmOrigem">
+            <option value="">Selecione...</option>
+            <option>Instagram</option>
+            <option>WhatsApp direto</option>
+            <option>Indicação</option>
+            <option>Google</option>
+            <option>Facebook</option>
+            <option>TikTok</option>
+            <option>Presencial</option>
+            <option>Outro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Objetivo do lead</label>
+          <input type="text" id="crmObjetivo" placeholder="O que o cliente busca?" />
+        </div>
+        <div class="form-group">
+          <label>Valor do orçamento (R$)</label>
+          <input type="text" id="crmValor" placeholder="Ex: R$ 500,00" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Etapa no funil *</label>
+        <select id="crmEtapa">
+          <option value="chegada">📥 Chegada do Cliente</option>
+          <option value="agendamento">📅 Agendamento de Reunião</option>
+          <option value="proposta">📄 Proposta Enviada</option>
+          <option value="fechado">✅ Negócio Fechado</option>
+          <option value="perdido">❌ Negócio Perdido</option>
+          <option value="followup">🔁 Follow Up</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Anotações</label>
+        <textarea id="crmNotas" style="min-height:80px" placeholder="Observações, detalhes da conversa, próximos passos..."></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal('crmModal')">Cancelar</button>
+        <button class="btn-save" onclick="saveCrmLead()">SALVAR LEAD</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL NOTA -->
+  <div class="modal-overlay" id="noteModal" onclick="if(event.target===this)closeModal('noteModal')">
+    <div class="modal">
+      <h2 id="noteModalTitle">📓 NOVA NOTA</h2>
+      <input type="hidden" id="noteEditId" />
+      <div class="form-group"><label>Título</label><input type="text" id="noteTitle" placeholder="Ex: Resposta para objeção de preço" /></div>
+      <div class="form-group">
+        <label>Categoria</label>
+        <select id="noteTag">
+          <option value="script">Script</option>
+          <option value="objecao">Objeção</option>
+          <option value="venda">Venda</option>
+          <option value="geral">Geral</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Conteúdo</label><textarea id="noteContent" style="min-height:140px" placeholder="Cole ou escreva a resposta que funcionou..."></textarea></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal('noteModal')">Cancelar</button>
+        <button class="btn-save" onclick="saveNote()">SALVAR NOTA</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- fim #app -->
+
+<script>
+// =====================
+// STATE
+// =====================
+let currentUser = null;
+let inputType = 'text';
+let noteFilter = '';
+
+// =====================
+// STATE
+// =====================
+let currentUser = null;
+let inputType   = 'text';
+let noteFilter  = '';
+let authToken   = null;   // JWT — persiste no localStorage apenas o token
+let _userData   = null;   // cache local dos dados pessoais
+
+// =====================
+// API HELPER
+// =====================
+async function api(method, path, body){
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json' }
+  };
+  if(authToken) opts.headers['Authorization'] = 'Bearer ' + authToken;
+  if(body)      opts.body = JSON.stringify(body);
+  const res = await fetch(path, opts);
+  const data = await res.json().catch(()=>({}));
+  if(!res.ok) throw new Error(data.error || 'Erro ' + res.status);
+  return data;
+}
+
+// =====================
+// USER DATA (histórico, notas, crm) — sincroniza com o servidor
+// =====================
+async function loadUserData(){
+  try{ _userData = await api('GET','/api/data'); }
+  catch(e){ _userData = {history:[],notes:[],crm:[]}; }
+  return _userData;
+}
+async function saveUserData(){
+  try{ await api('POST','/api/data', _userData); }
+  catch(e){ console.warn('Falha ao sincronizar dados:', e.message); }
+}
+
+function getHistory(){  return _userData?.history || []; }
+function getNotes(){    return _userData?.notes   || []; }
+function getCRM(){      return _userData?.crm     || []; }
+
+function saveHistory(h){ _userData.history=h; saveUserData(); }
+function saveNotes(n){   _userData.notes=n;   saveUserData(); }
+function saveCRM(c){     _userData.crm=c;     saveUserData(); }
+
+// =====================
+// LOGIN / LOGOUT
+// =====================
+async function doLogin(){
+  const name     = document.getElementById('loginUser').value.trim();
+  const password = document.getElementById('loginPass').value.trim();
+  const errEl    = document.getElementById('loginError');
+
+  if(!name || !password){
+    errEl.textContent = 'Preencha usuário e senha.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  // Desativa botão durante o login
+  const btn = document.querySelector('#loginScreen .btn-primary');
+  btn.textContent = 'ENTRANDO...';
+  btn.disabled = true;
+
+  try{
+    const { token, user } = await api('POST', '/api/auth/login', { name, password });
+    authToken   = token;
+    currentUser = user;
+    localStorage.setItem('mdv_token', token);
+    errEl.style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    await loadUserData();
+    initApp();
+  } catch(e){
+    errEl.textContent = e.message || 'Erro ao fazer login.';
+    errEl.style.display = 'block';
+  } finally {
+    btn.textContent = 'ACESSAR SISTEMA';
+    btn.disabled = false;
+  }
+}
+
+function doLogout(){
+  authToken   = null;
+  currentUser = null;
+  _userData   = null;
+  localStorage.removeItem('mdv_token');
+  ['loginUser','loginPass'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('loginError').style.display = 'none';
+  document.getElementById('app').style.display        = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('nav-dashboard').classList.add('active');
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-dashboard').classList.add('active');
+}
+
+// =====================
+// ADMIN — USUÁRIOS (via API)
+// =====================
+function getUsers(){ return _adminUsers || []; }
+let _adminUsers = [];
+
+async function loadAdminUsers(){
+  try{
+    _adminUsers = await api('GET', '/api/admin/users');
+  } catch(e){ _adminUsers = []; }
+}
+
+function getGlobalSlots(){
+  const admin = _adminUsers.find(u => u.isAdmin);
+  return admin?.globalSlots || 50;
+}
+
+async function saveGlobalSlots(){
+  const val = parseInt(document.getElementById('globalSlots').value);
+  if(isNaN(val)||val<1){ alert('Informe um número válido.'); return; }
+  try{
+    await api('PATCH', '/api/admin/slots', { slots: val });
+    updateSlotsInfo();
+    alert('✅ Slots atualizados para ' + val + '.');
+  } catch(e){ alert('Erro: ' + e.message); }
+}
+
+function updateSlotsInfo(){
+  const nonAdmin = _adminUsers.filter(u => !u.isAdmin).length;
+  const slots    = getGlobalSlots();
+  const el = document.getElementById('slotsUsedInfo');
+  if(el) el.textContent = nonAdmin + ' de ' + slots + ' slots usados';
+}
+
+function renderAdminTable(){
+  document.getElementById('globalSlots').value = getGlobalSlots();
+  updateSlotsInfo();
+  const tbody = document.getElementById('userTableBody');
+  tbody.innerHTML = _adminUsers.map(u => `
+    <tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="table-avatar">${u.avatar?`<img src="${u.avatar}" alt="">`:(u.displayName||u.name).charAt(0).toUpperCase()}</div>
+          <span>${u.name}</span>
+        </div>
+      </td>
+      <td>${u.displayName||'—'}</td>
+      <td><span class="niche-tag">${u.niche}</span></td>
+      <td><span class="limit-badge">${u.limit===999?'∞':u.limit}</span></td>
+      <td>${u.used||0}</td>
+      <td class="${u.active?'status-active':'status-inactive'}">${u.isAdmin?'<span style="color:var(--accent)">● Admin</span>':(u.active?'● Ativo':'○ Inativo')}</td>
+      <td>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          ${u.isAdmin
+            ? '<span style="color:var(--text3);font-size:11px;padding:4px 0">Protegido</span>'
+            : `<button class="btn-sm btn-edit" onclick="openEditUser('${u.id}')">Editar</button>
+               <button class="btn-sm btn-edit" onclick="toggleUser('${u.id}')">${u.active?'Desativar':'Ativar'}</button>
+               <button class="btn-sm btn-del" onclick="deleteUser('${u.id}')">Remover</button>`
+          }
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+async function toggleUser(id){
+  const u = _adminUsers.find(x => x.id === id);
+  if(!u || u.isAdmin) return;
+  try{
+    const updated = await api('PATCH', '/api/admin/users/' + id, { active: !u.active });
+    u.active = updated.user.active;
+    renderAdminTable();
+  } catch(e){ alert('Erro: ' + e.message); }
+}
+
+async function deleteUser(id){
+  if(!confirm('Remover este usuário? Esta ação não pode ser desfeita.')) return;
+  try{
+    await api('DELETE', '/api/admin/users/' + id);
+    _adminUsers = _adminUsers.filter(u => u.id !== id);
+    renderAdminTable();
+  } catch(e){ alert('Erro: ' + e.message); }
+}
+
+async function openAddUser(){
+  const slots    = getGlobalSlots();
+  const nonAdmin = _adminUsers.filter(u => !u.isAdmin).length;
+  if(nonAdmin >= slots){
+    const ok = confirm(`Limite de ${slots} slot(s) atingido.\nClicar OK aumenta automaticamente para ${slots+5} slots.`);
+    if(ok){
+      await api('PATCH', '/api/admin/slots', { slots: slots+5 });
+      if(_adminUsers.find(u=>u.isAdmin)) _adminUsers.find(u=>u.isAdmin).globalSlots = slots+5;
+      document.getElementById('globalSlots').value = slots+5;
+      updateSlotsInfo();
+    } else return;
+  }
+  document.getElementById('newUserName').value        = '';
+  document.getElementById('newUserPass').value        = '';
+  document.getElementById('newUserDisplayName').value = '';
+  document.getElementById('newUserNiche').value       = '';
+  document.getElementById('newUserLimit').value       = '10';
+  document.getElementById('addUserModal').classList.add('show');
+}
+
+async function saveNewUser(){
+  const name        = document.getElementById('newUserName').value.trim();
+  const password    = document.getElementById('newUserPass').value.trim();
+  const displayName = document.getElementById('newUserDisplayName').value.trim();
+  const niche       = document.getElementById('newUserNiche').value;
+  const limit       = document.getElementById('newUserLimit').value;
+
+  if(!name)     { alert('Preencha o Login / E-mail.'); return; }
+  if(!password) { alert('Preencha a Senha.'); return; }
+  if(!niche)    { alert('Selecione o Nicho.'); return; }
+
+  const btn = document.querySelector('#addUserModal .btn-save');
+  btn.textContent = 'CRIANDO...';
+  btn.disabled = true;
+
+  try{
+    const { user } = await api('POST', '/api/admin/users', { name, password, displayName, niche, limit });
+    _adminUsers.push(user);
+    closeModal('addUserModal');
+    renderAdminTable();
+    alert('✅ Usuário "' + name + '" criado com sucesso!');
+  } catch(e){
+    alert('Erro ao criar usuário: ' + e.message);
+  } finally {
+    btn.textContent = 'CRIAR USUÁRIO';
+    btn.disabled = false;
+  }
+}
+
+async function openEditUser(id){
+  const u = _adminUsers.find(x => x.id === id);
+  if(!u || u.isAdmin) return;
+  document.getElementById('editUserId').value         = id;
+  document.getElementById('editUserName').value       = u.name;
+  document.getElementById('editUserPass').value       = '';
+  document.getElementById('editUserDisplayName').value = u.displayName||'';
+  document.getElementById('editUserNiche').value      = u.niche;
+  document.getElementById('editUserLimit').value      = String(u.limit===999?999:u.limit);
+  document.getElementById('editUserModal').classList.add('show');
+}
+
+async function saveEditUser(){
+  const id          = document.getElementById('editUserId').value;
+  const name        = document.getElementById('editUserName').value.trim();
+  const password    = document.getElementById('editUserPass').value.trim();
+  const displayName = document.getElementById('editUserDisplayName').value.trim();
+  const niche       = document.getElementById('editUserNiche').value;
+  const limit       = document.getElementById('editUserLimit').value;
+
+  if(!name || !niche){ alert('Preencha os campos obrigatórios.'); return; }
+
+  const btn = document.querySelector('#editUserModal .btn-save');
+  btn.textContent = 'SALVANDO...';
+  btn.disabled = true;
+
+  try{
+    const body = { name, displayName, niche, limit };
+    if(password) body.password = password;
+    const { user } = await api('PATCH', '/api/admin/users/' + id, body);
+    const idx = _adminUsers.findIndex(u => u.id === id);
+    if(idx !== -1) _adminUsers[idx] = { ..._adminUsers[idx], ...user };
+    closeModal('editUserModal');
+    renderAdminTable();
+  } catch(e){
+    alert('Erro: ' + e.message);
+  } finally {
+    btn.textContent = 'SALVAR';
+    btn.disabled = false;
+  }
+}
+
+// =====================
+// PERFIL (via API)
+// =====================
+async function saveProfile(){
+  const displayName   = document.getElementById('profileDisplayInput').value.trim();
+  const currentPassEl = document.getElementById('profileOldPass').value.trim();
+  const newPass       = document.getElementById('profileNewPass').value.trim();
+  const confPass      = document.getElementById('profileConfPass').value.trim();
+  const msgEl         = document.getElementById('profileMsg');
+
+  function showMsg(txt, ok){
+    msgEl.textContent = txt;
+    msgEl.style.display = 'block';
+    msgEl.className = 'info-msg ' + (ok ? 'info-ok' : 'info-err');
+  }
+
+  if(newPass && newPass !== confPass) return showMsg('Nova senha e confirmação não coincidem.', false);
+  if(newPass && !currentPassEl)       return showMsg('Informe a senha atual para alterá-la.', false);
+
+  const body = {};
+  if(displayName) body.displayName = displayName;
+  if(newPass){
+    body.currentPassword = currentPassEl;
+    body.newPassword     = newPass;
+  }
+
+  // Avatar
+  const avatarEl = document.getElementById('profileAvatarBig').querySelector('img');
+  if(currentUser.avatar) body.avatar = currentUser.avatar;
+
+  try{
+    const { user } = await api('PATCH', '/api/auth/profile', body);
+    currentUser = { ...currentUser, ...user };
+    document.getElementById('sideUser').textContent           = currentUser.displayName;
+    document.getElementById('profilePreviewName').textContent = currentUser.displayName;
+    document.getElementById('profileOldPass').value = '';
+    document.getElementById('profileNewPass').value = '';
+    document.getElementById('profileConfPass').value = '';
+    renderSideAvatar();
+    renderProfileAvatar();
+    showMsg('✅ Perfil atualizado com sucesso!', true);
+  } catch(e){
+    showMsg(e.message, false);
+  }
+}
+
+// Avatar — salva no objeto em memória e manda para a API
+function handleAvatarUpload(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  if(file.size > 1.5*1024*1024){ alert('Imagem muito grande. Use uma menor que 1.5MB.'); return; }
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    const data = ev.target.result;
+    currentUser.avatar = data;
+    try{ await api('PATCH', '/api/auth/profile', { avatar: data }); }
+    catch(e){ console.warn('Falha ao salvar avatar:', e.message); }
+    renderSideAvatar();
+    renderProfileAvatar();
+  };
+  reader.readAsDataURL(file);
+}
+
+// =====================
+// DIAGNÓSTICO (mantido para admin)
+// =====================
+function runDiagnostic(){
+  const el = document.getElementById('storageDiag');
+  if(!el) return;
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:8px">
+      <div style="background:rgba(0,212,255,0.06);border:1px solid var(--border2);border-radius:8px;padding:10px">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px">USUÁRIOS NO BANCO</div>
+        <div style="font-size:20px;font-weight:700;color:var(--accent)">${_adminUsers.length}</div>
+      </div>
+      <div style="background:rgba(0,212,255,0.06);border:1px solid var(--border2);border-radius:8px;padding:10px">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px">ARMAZENAMENTO</div>
+        <div style="font-size:14px;font-weight:700;color:var(--accent3)">☁️ Banco no servidor</div>
+      </div>
+      <div style="background:rgba(0,212,255,0.06);border:1px solid var(--border2);border-radius:8px;padding:10px">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px">STATUS</div>
+        <div style="font-size:14px;font-weight:700;color:var(--accent3)">✅ Online</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--text3)">
+      Usuários: ${_adminUsers.map(u=>`<span style="color:var(--text2)">${u.name}</span>`).join(', ')}
+    </div>`;
+}
+function repairStorage(){ runDiagnostic(); alert('✅ Banco de dados no servidor — sem necessidade de reparo local.'); }
+function exportUsers(){
+  const data = JSON.stringify({users: _adminUsers, exportedAt: new Date().toISOString()}, null, 2);
+  const blob = new Blob([data], {type:'application/json'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'usuarios-'+new Date().toISOString().split('T')[0]+'.json'; a.click();
+  URL.revokeObjectURL(url);
+}
+function importUsers(){ alert('Importação desabilitada nesta versão. Use o painel admin para criar usuários individualmente.'); }
+
+// =====================
+// INIT
+// =====================
+function initApp(){
+  const used  = currentUser.used  || 0;
+  const limit = currentUser.limit || 10;
+
+  document.getElementById('sideUser').textContent  = currentUser.displayName || currentUser.name;
+  document.getElementById('sideNiche').textContent = 'Nicho: ' + currentUser.niche;
+  document.getElementById('usageCount').textContent = used + '/' + (limit===999?'∞':limit);
+  document.getElementById('usageFill').style.width  = (limit===999?0:Math.min(100,(used/limit)*100)) + '%';
+  renderSideAvatar();
+
+  document.getElementById('adminNav').style.display = currentUser.isAdmin ? 'flex' : 'none';
+
+  // Perfil
+  document.getElementById('profileDisplayInput').value    = currentUser.displayName || currentUser.name;
+  document.getElementById('profileLoginInput').value      = currentUser.name;
+  document.getElementById('profilePreviewName').textContent = currentUser.displayName || currentUser.name;
+  document.getElementById('profilePreviewNiche').textContent = currentUser.niche;
+
+  const nicheField = document.getElementById('profileNicheField');
+  if(nicheField){
+    if(currentUser.isAdmin){
+      nicheField.innerHTML = `<input type="text" id="profileNicheDisplay" value="${currentUser.niche}" disabled style="opacity:.5;cursor:not-allowed;width:100%;background:rgba(0,212,255,0.04);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:14px;outline:none;" />`;
+    } else {
+      nicheField.innerHTML = `
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(0,212,255,0.04);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;">
+          <span style="font-size:14px;color:var(--text);flex:1">${currentUser.niche}</span>
+          <span style="font-size:10px;font-family:'Orbitron',sans-serif;letter-spacing:1px;background:rgba(255,107,53,0.12);border:1px solid rgba(255,107,53,0.4);color:var(--accent2);padding:3px 10px;border-radius:20px;">🔒 DEFINIDO PELO ADMIN</span>
+        </div>`;
+    }
+  }
+
+  renderProfileAvatar();
+
+  // Dashboard
+  const hist  = getHistory();
+  const notes = getNotes();
+  document.getElementById('statTotal').textContent     = used;
+  document.getElementById('statRemaining').textContent = limit===999?'∞':Math.max(0,limit-used);
+  document.getElementById('statScripts').textContent   = hist.length;
+  document.getElementById('statNotes').textContent     = notes.length;
+  document.getElementById('dashNiche').innerHTML       = currentUser.niche ? `<span class="niche-tag">${currentUser.niche}</span>` : '';
+
+  renderDashHistory(hist);
+  renderHistory(hist);
+  renderNotes();
+
+  if(currentUser.isAdmin){
+    loadAdminUsers().then(()=>{ renderAdminTable(); runDiagnostic(); });
+  }
+}
+
+// =====================
+// AUTO LOGIN (restaura token salvo)
+// =====================
+(async function(){
+  const token = localStorage.getItem('mdv_token');
+  if(!token) return;
+  authToken = token;
+  try{
+    const { user } = await api('GET', '/api/auth/me');
+    currentUser = user;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display         = 'block';
+    await loadUserData();
+    initApp();
+  } catch(e){
+    // Token inválido ou expirado
+    authToken = null;
+    localStorage.removeItem('mdv_token');
+  }
+})();
+
+  const used=currentUser.used||0;
+  const limit=currentUser.limit;
+
+  // sidebar
+  document.getElementById('sideUser').textContent=currentUser.displayName||currentUser.name;
+  document.getElementById('sideNiche').textContent='Nicho: '+currentUser.niche;
+  document.getElementById('usageCount').textContent=used+'/'+(limit===999?'∞':limit);
+  document.getElementById('usageFill').style.width=(limit===999?0:Math.min(100,(used/limit)*100))+'%';
+  renderSideAvatar();
+
+  // admin nav
+  document.getElementById('adminNav').style.display=currentUser.isAdmin?'flex':'none';
+
+  // profile fields
+  document.getElementById('profileDisplayInput').value=currentUser.displayName||currentUser.name;
+  document.getElementById('profileLoginInput').value=currentUser.name;
+  document.getElementById('profilePreviewName').textContent=currentUser.displayName||currentUser.name;
+
+  // Nicho — admin pode ver/editar, cliente vê bloqueado com badge
+  const nicheField=document.getElementById('profileNicheField');
+  if(currentUser.isAdmin){
+    nicheField.innerHTML=`<input type="text" id="profileNicheDisplay" value="${currentUser.niche}" disabled style="opacity:.5;cursor:not-allowed;width:100%;background:rgba(0,212,255,0.04);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:14px;outline:none;" />`;
+  } else {
+    nicheField.innerHTML=`
+      <div style="display:flex;align-items:center;gap:12px;background:rgba(0,212,255,0.04);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;">
+        <span style="font-size:14px;color:var(--text);flex:1">${currentUser.niche}</span>
+        <span style="font-size:10px;font-family:'Orbitron',sans-serif;letter-spacing:1px;background:rgba(255,107,53,0.12);border:1px solid rgba(255,107,53,0.4);color:var(--accent2);padding:3px 10px;border-radius:20px;">🔒 DEFINIDO PELO ADMIN</span>
+      </div>`;
+  }
+  document.getElementById('profilePreviewNiche').textContent=currentUser.niche;
+  renderProfileAvatar();
+
+  // dashboard stats
+  const hist=getHistory();
+  const notes=getNotes();
+  document.getElementById('statTotal').textContent=used;
+  document.getElementById('statRemaining').textContent=limit===999?'∞':Math.max(0,limit-used);
+  document.getElementById('statScripts').textContent=hist.length;
+  document.getElementById('statNotes').textContent=notes.length;
+  document.getElementById('dashNiche').innerHTML=currentUser.niche?`<span class="niche-tag">${currentUser.niche}</span>`:'';
+
+  renderDashHistory(hist);
+  renderHistory(hist);
+  renderNotes();
+  if(currentUser.isAdmin){renderAdminTable();}
+}
+
+// =====================
+// AVATAR HELPERS
+// =====================
+function getInitial(){return(currentUser.displayName||currentUser.name||'?').charAt(0).toUpperCase();}
+
+function renderSideAvatar(){
+  const el=document.getElementById('sideAvatar');
+  const mob=document.getElementById('mobAvatar');
+  if(currentUser.avatar){
+    el.innerHTML=`<img src="${currentUser.avatar}" alt="">`;
+    if(mob)mob.innerHTML=`<img src="${currentUser.avatar}" alt="">`;
+  } else {
+    const init=getInitial();
+    el.innerHTML=init;
+    if(mob)mob.innerHTML=init;
+  }
+}
+function renderProfileAvatar(){
+  const el=document.getElementById('profileAvatarBig');
+  const letterEl=document.getElementById('profileAvatarLetter');
+  const existingImg=el.querySelector('img');
+  if(existingImg)existingImg.remove();
+  if(currentUser.avatar){
+    letterEl.style.display='none';
+    const img=document.createElement('img');
+    img.src=currentUser.avatar;
+    el.insertBefore(img,el.querySelector('.avatar-overlay'));
+  } else {
+    letterEl.style.display='';
+    letterEl.textContent=getInitial();
+  }
+}
+
+function handleAvatarUpload(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  if(file.size>2*1024*1024){alert('Imagem muito grande. Use uma menor que 2MB.');return;}
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const data=ev.target.result;
+    currentUser.avatar=data;
+    try{ await api('PATCH','/api/auth/profile',{avatar:data}); }
+    catch(e){ console.warn('Falha ao salvar avatar:',e.message); }
+    renderSideAvatar();
+    renderProfileAvatar();
+  };
+  reader.readAsDataURL(file);
+}
+
+// =====================
+// NAVIGATION
+// =====================
+function navTo(id, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const page=document.getElementById('page-'+id);
+  if(page)page.classList.add('active');
+  const navEl=el||document.getElementById('nav-'+id);
+  if(navEl)navEl.classList.add('active');
+  closeSidebar();
+
+  if(id==='analyze')checkLimit();
+  if(id==='notes')renderNotes();
+  if(id==='scripts')renderScripts();
+  if(id==='crm')renderCRM();
+  if(id==='simulator')showSimSelector();
+  if(id==='admin'&&currentUser.isAdmin){
+    renderAdminTable();
+    document.getElementById('globalSlots').value=getGlobalSlots();
+    updateSlotsInfo();
+    runDiagnostic();
+  }
+}
+
+function updateSlotsInfo(){
+  const users=getUsers();
+  const nonAdmin=users.filter(u=>!u.isAdmin).length;
+  const slots=getGlobalSlots();
+  document.getElementById('slotsUsedInfo').textContent=nonAdmin+' de '+slots+' slots usados';
+}
+
+function checkLimit(){
+  const over=currentUser.limit!==999&&currentUser.used>=currentUser.limit;
+  document.getElementById('limitWarn').classList.toggle('show',over);
+}
+
+// =====================
+// INPUT TYPE
+// =====================
+function setType(t){
+  inputType=t;
+  ['text','desc','audio','hypo','img'].forEach(x=>{
+    const cap=x.charAt(0).toUpperCase()+x.slice(1);
+    const el=document.getElementById('input'+cap);
+    if(el)el.style.display=x===t?'block':'none';
+    const btn=document.getElementById('btn-'+x);
+    if(btn)btn.classList.toggle('active',x===t);
+  });
+}
+
+// =====================
+// ANALYSIS
+// =====================
+async function runAnalysis(){
+  if(currentUser.limit!==999&&currentUser.used>=currentUser.limit){checkLimit();return;}
+
+  // gather content based on type
+  const map={text:'convText',desc:'convDesc',audio:'convAudio',hypo:'convHypo'};
+  let content='';
+  let imgBase64='';
+  let imgMime='image/jpeg';
+
+  if(inputType==='img'){
+    const file=document.getElementById('convImgFile').files[0];
+    if(!file){alert('Por favor, selecione uma imagem (print da conversa).');return;}
+    imgBase64=await fileToBase64(file);
+    imgMime=file.type||'image/jpeg';
+    content=document.getElementById('convImgContext').value.trim();
+  } else {
+    content=document.getElementById(map[inputType]).value.trim();
+    if(!content){alert('Por favor, preencha o campo antes de analisar.');return;}
+  }
+
+  document.getElementById('loadingBox').classList.add('show');
+  document.getElementById('resultBox').classList.remove('show');
+
+  const niche=currentUser.niche;
+  const typeLabel={text:'conversa de texto',desc:'descrição de situação',audio:'transcrição de áudio',hypo:'cenário hipotético',img:'print de conversa (imagem)'}[inputType];
+
+  const sys=`Você é o Mestre das Vendas, especialista em atendimento e vendas no nicho de ${niche||'serviços'}.
+
+Analise a situação enviada e retorne EXATAMENTE neste formato (sem texto fora dele):
+
+ERROS:
+[Liste cada erro identificado: falta de apresentação, preço passado cedo demais, falta de perguntas de levantamento, pouca valorização do serviço, erro na negociação ou fechamento. Seja específico e didático.]
+
+CONTORNO:
+[Mostre como quebrar a objeção linha por linha. Como retomar o controle da conversa. Como conduzir a cliente ao agendamento — não apenas dar informação.]
+
+SCRIPT:
+[Script completo de atendimento do zero com os 5 passos:
+PASSO 1 – APRESENTAÇÃO: se apresentar pelo nome, chamar a cliente pelo nome, comunicação profissional
+PASSO 2 – LEVANTAMENTO: 2 a 3 perguntas inteligentes baseadas no que a cliente perguntou, nunca dar preço direto
+PASSO 3 – VALORIZAÇÃO: explicar técnica, benefícios, diferenciais, mencionar fotos/vídeos/provas sociais
+PASSO 4 – PREÇO: apresentar valor base + informar que pode variar após avaliação presencial
+PASSO 5 – FECHAMENTO: quebrar objeção e focar em marcar o agendamento]
+
+Responda em português, de forma prática e direta.`;
+
+  try{
+    let messages;
+    if(inputType==='img'){
+      const userContent=[
+        {type:"image",source:{type:"base64",media_type:imgMime,data:imgBase64}},
+        {type:"text",text:`Analise este print de conversa do nicho de ${niche}. Leia toda a conversa na imagem e aplique a análise completa.${content?' Contexto adicional: '+content:''}`}
+      ];
+      messages=[{role:"user",content:userContent}];
+    } else {
+      messages=[{role:"user",content:`Analise esta ${typeLabel} do nicho de ${niche}:\n\n${content}`}];
+    }
+
+    const data = await api('POST', '/api/analyze', {system:sys, messages});
+    const text = data.content?.[0]?.text || 'Não foi possível gerar análise.';
+
+    const errM=text.match(/ERROS:([\s\S]*?)(?:CONTORNO:|$)/i);
+    const conM=text.match(/CONTORNO:([\s\S]*?)(?:SCRIPT:|$)/i);
+    const scrM=text.match(/SCRIPT:([\s\S]*?)$/i);
+
+    document.getElementById('resErrors').textContent=(errM?errM[1].trim():text);
+    document.getElementById('resReverse').textContent=(conM?conM[1].trim():'—');
+    document.getElementById('resScript').textContent=(scrM?scrM[1].trim():'—');
+    document.getElementById('loadingBox').classList.remove('show');
+    document.getElementById('resultBox').classList.add('show');
+    setTimeout(animateResults, 50);
+
+    // O servidor já incrementou o used — atualiza só o local
+    currentUser.used = (currentUser.used||0) + 1;
+
+    // save history
+    const hist=getHistory();
+    const preview=inputType==='img'?'📸 Print de conversa'+(content?' — '+content.slice(0,40):''):content.slice(0,70)+'…';
+    hist.unshift({id:Date.now(),type:inputType,preview,result:text,date:new Date().toLocaleString('pt-BR')});
+    saveHistory(hist);
+
+    // refresh UI
+    const lim=currentUser.limit;
+    document.getElementById('usageCount').textContent=currentUser.used+'/'+(lim===999?'∞':lim);
+    document.getElementById('usageFill').style.width=(lim===999?0:Math.min(100,(currentUser.used/lim)*100))+'%';
+    document.getElementById('statTotal').textContent=currentUser.used;
+    document.getElementById('statRemaining').textContent=lim===999?'∞':Math.max(0,lim-currentUser.used);
+    document.getElementById('statScripts').textContent=hist.length;
+    renderDashHistory(hist);
+    renderHistory(hist);
+
+  }catch(e){
+    document.getElementById('loadingBox').classList.remove('show');
+    const msg=e.message||'Erro desconhecido';
+    document.getElementById('resErrors').textContent='⚠️ Erro ao processar análise:\n'+msg+'\n\nVerifique se o servidor está rodando e a API key está configurada.';
+    document.getElementById('resReverse').textContent='';
+    document.getElementById('resScript').textContent='';
+    document.getElementById('resultBox').classList.add('show');
+  }
+}
+
+// =====================
+// IMAGE HELPERS
+// =====================
+function fileToBase64(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=e=>res(e.target.result.split(',')[1]);
+    r.onerror=rej;
+    r.readAsDataURL(file);
+  });
+}
+function handleImgSelect(e){
+  const file=e.target.files[0];
+  if(file)previewImg(file);
+}
+function handleDragOver(e){e.preventDefault();document.getElementById('imgDropZone').style.borderColor='var(--accent)';}
+function handleDrop(e){
+  e.preventDefault();
+  const file=e.dataTransfer.files[0];
+  if(file&&file.type.startsWith('image/'))previewImg(file);
+}
+function previewImg(file){
+  if(file.size>4*1024*1024){alert('Imagem muito grande. Use uma menor que 4MB.');return;}
+  const url=URL.createObjectURL(file);
+  document.getElementById('imgPreview').src=url;
+  document.getElementById('imgPreviewWrap').style.display='block';
+  document.getElementById('imgDropZone').classList.add('has-img');
+  // sync file to input
+  const dt=new DataTransfer();
+  dt.items.add(file);
+  document.getElementById('convImgFile').files=dt.files;
+}
+function removeImg(e){
+  e.stopPropagation();
+  document.getElementById('imgPreview').src='';
+  document.getElementById('imgPreviewWrap').style.display='none';
+  document.getElementById('convImgFile').value='';
+  document.getElementById('imgDropZone').classList.remove('has-img');
+}
+
+// =====================
+// MOBILE SIDEBAR
+// =====================
+function toggleSidebar(){
+  const s=document.querySelector('.sidebar');
+  const o=document.getElementById('sideOverlay');
+  s.classList.toggle('open');
+  o.classList.toggle('show');
+}
+function closeSidebar(){
+  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('sideOverlay').classList.remove('show');
+}
+
+// =====================
+// HISTORY RENDER
+// =====================
+const ICONS={text:'💬',desc:'📝',audio:'🎙️',hypo:'💡',img:'📸'};
+const LABELS={text:'Conversa',desc:'Descrição',audio:'Áudio',hypo:'Hipotético',img:'Print'};
+
+function renderDashHistory(hist){
+  const el=document.getElementById('dashHistory');
+  if(!hist.length){el.innerHTML='<p style="color:var(--text3);font-size:13px;">Nenhuma análise ainda.</p>';return;}
+  el.innerHTML=hist.slice(0,5).map(h=>`
+    <div class="history-item">
+      <span class="history-icon">${ICONS[h.type]||'💬'}</span>
+      <div class="history-info"><div class="history-title">${h.preview}</div><div class="history-time">${h.date}</div></div>
+      <span class="history-badge">ANALISADO</span>
+    </div>`).join('');
+}
+function renderHistory(hist){
+  const el=document.getElementById('historyList');
+  if(!hist.length){el.innerHTML='<p style="color:var(--text3);font-size:13px;">Nenhuma análise no histórico.</p>';return;}
+  el.innerHTML=hist.map(h=>`
+    <div class="history-item" onclick="loadHistoryItem(${h.id})">
+      <span class="history-icon">${ICONS[h.type]||'💬'}</span>
+      <div class="history-info"><div class="history-title">${h.preview}</div><div class="history-time">${h.date} · ${LABELS[h.type]||''}</div></div>
+      <span class="history-badge">VER</span>
+    </div>`).join('');
+}
+function loadHistoryItem(id){
+  const item=getHistory().find(h=>h.id===id);
+  if(!item)return;
+  navTo('analyze');
+  const t=item.result;
+  const errM=t.match(/ERROS:([\s\S]*?)(?:CONTORNO:|$)/i);
+  const conM=t.match(/CONTORNO:([\s\S]*?)(?:SCRIPT:|$)/i);
+  const scrM=t.match(/SCRIPT:([\s\S]*?)$/i);
+  document.getElementById('resErrors').textContent=errM?errM[1].trim():t;
+  document.getElementById('resReverse').textContent=conM?conM[1].trim():'—';
+  document.getElementById('resScript').textContent=scrM?scrM[1].trim():'—';
+  document.getElementById('resultBox').classList.add('show');
+}
+
+// =====================
+// NOTES
+// =====================
+const TAG_LABELS={script:'Script',objecao:'Objeção',venda:'Venda',geral:'Geral'};
+const TAG_CLASSES={script:'tag-script',objecao:'tag-objecao',venda:'tag-venda',geral:'tag-geral'};
+
+function renderNotes(){
+  const all=getNotes();
+  const list=noteFilter?all.filter(n=>n.tag===noteFilter):all;
+  const el=document.getElementById('notesList');
+  document.getElementById('statNotes').textContent=all.length;
+  if(!list.length){
+    el.innerHTML=`<div class="note-empty"><span class="big-icon">📓</span>${all.length?'Nenhuma nota nessa categoria.':'Nenhuma nota ainda. Salve as melhores respostas aqui!'}</div>`;
+    return;
+  }
+  el.innerHTML=list.map(n=>`
+    <div class="note-card">
+      <div class="note-card-header">
+        <div class="note-card-title">${escHtml(n.title)}</div>
+        <span class="note-card-date">${n.date}</span>
+      </div>
+      <div class="note-card-body">${escHtml(n.content)}</div>
+      <div class="note-card-footer">
+        <span class="note-tag ${TAG_CLASSES[n.tag]||'tag-geral'}">${TAG_LABELS[n.tag]||'Geral'}</span>
+        <div class="note-actions">
+          <button class="btn-sm btn-edit" onclick="editNote(${n.id})">✏️ Editar</button>
+          <button class="btn-sm btn-del" onclick="deleteNote(${n.id})">🗑️</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function escHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function filterNotes(tag, btn){
+  noteFilter=tag;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  renderNotes();
+}
+
+function openNoteModal(prefill){
+  document.getElementById('noteModalTitle').textContent='📓 NOVA NOTA';
+  document.getElementById('noteEditId').value='';
+  document.getElementById('noteTitle').value=prefill&&prefill.title?prefill.title:'';
+  document.getElementById('noteContent').value=prefill&&prefill.content?prefill.content:'';
+  document.getElementById('noteTag').value=prefill&&prefill.tag?prefill.tag:'script';
+  document.getElementById('noteModal').classList.add('show');
+}
+function editNote(id){
+  const n=getNotes().find(x=>x.id===id);
+  if(!n)return;
+  document.getElementById('noteModalTitle').textContent='✏️ EDITAR NOTA';
+  document.getElementById('noteEditId').value=id;
+  document.getElementById('noteTitle').value=n.title;
+  document.getElementById('noteContent').value=n.content;
+  document.getElementById('noteTag').value=n.tag;
+  document.getElementById('noteModal').classList.add('show');
+}
+function saveNote(){
+  const title=document.getElementById('noteTitle').value.trim();
+  const content=document.getElementById('noteContent').value.trim();
+  const tag=document.getElementById('noteTag').value;
+  const editId=document.getElementById('noteEditId').value;
+  if(!title||!content){alert('Preencha título e conteúdo.');return;}
+  const notes=getNotes();
+  if(editId){
+    const idx=notes.findIndex(n=>n.id===parseInt(editId));
+    if(idx!==-1){notes[idx].title=title;notes[idx].content=content;notes[idx].tag=tag;}
+  }else{
+    notes.unshift({id:Date.now(),title,content,tag,date:new Date().toLocaleString('pt-BR')});
+  }
+  saveNotes(notes);
+  closeModal('noteModal');
+  renderNotes();
+}
+function deleteNote(id){
+  if(!confirm('Remover esta nota?'))return;
+  saveNotes(getNotes().filter(n=>n.id!==id));
+  renderNotes();
+}
+function saveResultToNotes(){
+  const script=document.getElementById('resScript').textContent;
+  if(!script||script==='—'){alert('Não há script para salvar.');return;}
+  openNoteModal({title:'Script '+new Date().toLocaleDateString('pt-BR'),content:script,tag:'script'});
+}
+
+// SCRIPT LIBRARY
+// =====================
+const SCRIPTS=[
+  {id:1,nicho:'Lash Designer',tag:'Primeiro Contato',title:'Cliente pergunta o preço direto',body:`PASSO 1 – APRESENTAÇÃO\nOlá! Aqui é a [Nome], da [Studio]. 😊 Com quem tenho o prazer de falar?\n\nPASSO 2 – LEVANTAMENTO\nQue ótimo, [Nome da cliente]! Antes de te passar os valores, me conta: você já faz extensão de cílios? E qual é o efeito que você busca — algo mais natural ou mais volumoso?\n\nPASSO 3 – VALORIZAÇÃO\nAqui trabalhamos com técnicas personalizadas, olho a olho — cada mapeamento é único para o formato do seu olho. Usamos fios importados de alta durabilidade, e o resultado fica entre 3 a 5 semanas.\n\nPASSO 4 – PREÇO BASE\nOs valores começam a partir de R$[X] para o fio a fio clássico. O valor exato depende da técnica ideal para o seu olho — isso a gente define na avaliação presencial, que é gratuita!\n\nPASSO 5 – FECHAMENTO\nQue tal agendarmos sua avaliação essa semana? Tenho horários na terça e quinta — qual te encaixa melhor?`},
+  {id:2,nicho:'Lash Designer',tag:'Objeção de Preço',title:'Cliente diz que está caro',body:`CLIENTE: "Tá caro, vou pensar..."\n\nCOMO RESPONDER:\nEntendo, [Nome]! Mas deixa eu te perguntar: o que seria mais caro — pagar por qualidade agora, ou ter que refazer em 2 semanas?\n\nAqui uso fios de alta qualidade, duram em média 4 semanas com cuidados simples, e meu trabalho tem garantia.\n\nO que posso fazer: se vier essa semana, incluo uma hidratação de cílios sem custo adicional. Quer garantir seu horário?`},
+  {id:3,nicho:'Barbearia',tag:'Primeiro Contato',title:'Cliente pergunta sobre corte',body:`PASSO 1 – APRESENTAÇÃO\nEaí! Aqui é o [Nome], da Barbearia [Nome]. Como posso te chamar?\n\nPASSO 2 – LEVANTAMENTO\nBoa, [Nome]! Me conta: você tá querendo mudar o visual ou manter o estilo atual? E com que frequência você costuma cortar?\n\nPASSO 3 – VALORIZAÇÃO\nAqui cada corte começa com uma consultoria rápida sobre formato do rosto e estilo. Trabalhamos com produtos profissionais — dá uma olhada no nosso Instagram [@barbearia].\n\nPASSO 4 – PREÇO BASE\nNossos cortes começam a partir de R$[X]. O valor final depende dos serviços incluídos.\n\nPASSO 5 – FECHAMENTO\nQuando você tá disponível? Essa semana ainda tem horário — prefere de manhã ou à tarde?`},
+  {id:4,nicho:'Clínica de Estética',tag:'Primeiro Contato',title:'Cliente pergunta sobre procedimento',body:`PASSO 1 – APRESENTAÇÃO\nOlá! Seja bem-vinda! Aqui é a [Nome], da Clínica [Nome]. Com quem falo?\n\nPASSO 2 – LEVANTAMENTO\nPrazer, [Nome]! Me conta: qual é sua principal queixa? Você já fez algum procedimento antes?\n\nPASSO 3 – VALORIZAÇÃO\nAqui trabalhamos com tecnologia de última geração e profissionais certificados. Fazemos uma avaliação completa antes de qualquer procedimento — não existe receita de bolo aqui.\n\nPASSO 4 – PREÇO BASE\nOs valores variam conforme o protocolo, mas começam a partir de R$[X] a sessão. Parcelamos sem juros.\n\nPASSO 5 – FECHAMENTO\nA avaliação é gratuita e sem compromisso. Posso verificar disponibilidade para essa semana?`},
+  {id:5,nicho:'Personal Trainer',tag:'Objeção de Tempo',title:'Cliente diz que não tem tempo',body:`CLIENTE: "Não tenho tempo para treinar..."\n\nCOMO RESPONDER:\n[Nome], entendo — a vida está corrida. Mas me diz: você tem 45 minutos, 3 vezes na semana?\n\nCom treino personalizado esse tempo é suficiente para resultados reais em 60 dias. O que rouba tempo é treinar sem planejamento — horas na academia sem evolução.\n\nCom acompanhamento profissional, cada minuto tem um propósito. Você entra, executa, sai.\n\nQue tal marcarmos uma avaliação física gratuita? Leva 30 minutos e já saímos com um plano traçado.`},
+  {id:6,nicho:'Nutrição',tag:'Primeiro Contato',title:'Cliente busca emagrecimento',body:`PASSO 1 – APRESENTAÇÃO\nOlá! Aqui é [Nome], nutricionista. Fico feliz que você entrou em contato! Com quem falo?\n\nPASSO 2 – LEVANTAMENTO\n[Nome], me conta: seu objetivo é emagrecimento, ganho de massa ou saúde geral? Você já tentou alguma dieta antes?\n\nPASSO 3 – VALORIZAÇÃO\nAqui o plano é 100% individualizado — levo em conta seus hábitos, rotina e preferências. Não acredito em dieta genérica. Faço acompanhamento semanal para ajustar o necessário.\n\nPASSO 4 – PREÇO BASE\nA consulta inicial com plano completo está R$[X]. Inclui anamnese, avaliação e retorno em 30 dias.\n\nPASSO 5 – FECHAMENTO\nTenho horários essa semana — presencial ou online. Quer que eu verifique disponibilidade?`},
+
+  {id:7,nicho:'Estúdio de Produção Musical',tag:'Primeiro Contato',title:'Artista pergunta sobre gravação',body:`PASSO 1 – APRESENTAÇÃO\nE aí! Aqui é o [Nome], do Estúdio [Nome]. Tudo certo? Com quem estou falando?\n\nPASSO 2 – LEVANTAMENTO\nMassa, [Nome]! Me conta um pouco: que tipo de projeto você quer gravar — single, EP, álbum completo? E qual é o seu estilo musical? Já tem as músicas compostas e arranjadas?\n\nPASSO 3 – VALORIZAÇÃO\nAqui o estúdio é tratado acusticamente com equipamentos profissionais — pré-amps, microfones de condensador e interface de alta fidelidade. Nosso engenheiro de som tem mais de [X] anos de experiência e já trabalhou com artistas como [referências]. Cada projeto é tratado de forma única — não é só apertar o botão gravar.\n\nPASSO 4 – PREÇO BASE\nAs sessões de gravação começam a partir de R$[X]/hora. Pacotes completos de produção, mixagem e masterização a partir de R$[X]. O valor exato depende da complexidade do projeto — quantas faixas, se inclui músicos, etc.\n\nPASSO 5 – FECHAMENTO\nQue tal agendarmos uma visita ao estúdio sem compromisso? Você conhece o espaço, a gente conversa sobre o projeto e te passo um orçamento personalizado. Quando você tá disponível?`},
+
+  {id:8,nicho:'Estúdio de Produção Musical',tag:'Objeção de Preço',title:'Artista acha o valor alto',body:`ARTISTA: "Tá caro, vou procurar outro estúdio mais barato..."\n\nCOMO RESPONDER:\nEntendo, [Nome]. Mas deixa eu te perguntar: o que acontece com a sua música se a gravação ficar com som ruim, ruído de fundo ou mixagem amadora?\n\nNa internet, o ouvinte decide em 5 segundos se continua ouvindo ou pula. Uma produção de baixa qualidade destrói o potencial de uma boa música — e você vai ter gasto tempo e dinheiro sem resultado.\n\nAqui você investe uma vez e sai com um produto que compete de igual pra igual com o mercado. Nossos clientes conseguem distribuição em plataformas, plays orgânicos e até interesse de selos.\n\nPosso te montar um pacote mais enxuto para começar — gravamos um single completo por R$[X]. Isso te dá um produto de qualidade para apresentar ao mercado. Topa?`},
+
+  {id:9,nicho:'Restaurante & Lanchonete',tag:'Primeiro Contato',title:'Cliente pergunta sobre encomenda ou reserva',body:`PASSO 1 – APRESENTAÇÃO\nOlá! Aqui é [Nome], do [Restaurante/Lanchonete Nome]. Tudo bem? Como posso te ajudar?\n\nPASSO 2 – LEVANTAMENTO\nQue ótimo! Me conta: é para quantas pessoas? Tem alguma data especial ou ocasião? Alguma restrição alimentar que devo saber — intolerância, alergia?\n\nPASSO 3 – VALORIZAÇÃO\nAqui trabalhamos com ingredientes frescos e selecionados todos os dias. Nossa cozinha é [especialidade] e cada prato é preparado na hora — zero industrializado. Já atendemos eventos de [X] a [X] pessoas com cardápio personalizado.\n\nPASSO 4 – PREÇO BASE\nNosso cardápio executivo começa a partir de R$[X] por pessoa. Para encomendas e eventos, fazemos orçamento personalizado conforme o cardápio escolhido.\n\nPASSO 5 – FECHAMENTO\nPosso te enviar nosso cardápio completo agora para você escolher o que mais agrada. Já te adiantar: costumamos lotar nos fins de semana, então vale confirmar logo. Qual seria a data?`},
+
+  {id:10,nicho:'Restaurante & Lanchonete',tag:'Objeção de Preço',title:'Cliente compara preço com concorrente',body:`CLIENTE: "No outro lugar é mais barato..."\n\nCOMO RESPONDER:\nEntendo, [Nome]! Mas me conta — no outro lugar você sabe de onde vêm os ingredientes? É preparado na hora ou vem congelado?\n\nAqui o diferencial não é só o sabor — é a procedência. Usamos [ingredientes frescos/locais], nosso tempero é artesanal e você sente a diferença na primeira garfada.\n\nAlém disso, temos avaliação [X] estrelas no Google com mais de [X] avaliações — nossos clientes voltam justamente por isso.\n\nO que posso fazer: para o seu primeiro pedido, incluo [sobremesa/bebida/item] por conta da casa. Assim você experimenta sem arrependimento. Topa?`},
+
+  {id:11,nicho:'Agência de Marketing',tag:'Primeiro Contato',title:'Empresa pergunta sobre serviços',body:`PASSO 1 – APRESENTAÇÃO\nOlá! Aqui é [Nome], da [Agência Nome]. Obrigado pelo contato! Com quem tenho o prazer de falar?\n\nPASSO 2 – LEVANTAMENTO\n[Nome], para entender melhor como posso te ajudar: qual é o seu maior desafio hoje — atrair novos clientes, aumentar as vendas online, ou construir a presença da marca nas redes? Você já investe em marketing atualmente?\n\nPASSO 3 – VALORIZAÇÃO\nAqui trabalhamos com estratégia personalizada — nenhum cliente nosso recebe o mesmo pacote. Analisamos seu mercado, seu público-alvo e seus concorrentes antes de sugerir qualquer ação. Já geramos mais de [X] leads qualificados para clientes do seu segmento e temos cases documentados de resultado.\n\nPASSO 4 – PREÇO BASE\nNossos projetos começam a partir de R$[X]/mês para gestão de redes sociais. Campanhas de tráfego pago e projetos completos de branding têm orçamento sob medida.\n\nPASSO 5 – FECHAMENTO\nQue tal agendarmos um diagnóstico gratuito de 30 minutos? A gente analisa a situação atual do seu negócio e já saímos com um plano de ação. Você tem disponibilidade essa semana?`},
+
+  {id:12,nicho:'Agência de Marketing',tag:'Objeção de Resultado',title:'Cliente diz que já tentou e não funcionou',body:`CLIENTE: "Já tentei agência antes e não tive resultado..."\n\nCOMO RESPONDER:\nEntendo, [Nome] — e infelizmente isso é mais comum do que deveria. A maioria das agências vende pacote genérico: post bonitinho, curtida e relatório cheio de número que não vira venda.\n\nA diferença aqui é que a gente trabalha com foco em resultado real — leads, agendamentos, vendas. Antes de qualquer postagem, estudamos seu público, sua concorrência e seu ticket médio.\n\nE mais: você acompanha tudo em tempo real. Relatório semanal com o que gerou resultado e o que vamos ajustar — sem enrolação.\n\nVou ser direto: não vendo para todo mundo. Só aceito clientes onde enxergo potencial de crescimento real. Por isso quero primeiro fazer aquele diagnóstico gratuito — para entender seu negócio a fundo. Faz sentido pra você?`},
+
+  {id:13,nicho:'Loja de Carros',tag:'Primeiro Contato',title:'Cliente pergunta sobre veículo',body:`PASSO 1 – APRESENTAÇÃO\nOlá! Aqui é o [Nome], da [Loja Nome]. Tudo bem? Com quem tenho o prazer de falar?\n\nPASSO 2 – LEVANTAMENTO\nÓtimo, [Nome]! Me conta: você está buscando um veículo para uso pessoal ou profissional? Tem preferência por modelo, cor ou câmbio? E qual é sua faixa de investimento — já pensa em financiamento ou à vista?\n\nPASSO 3 – VALORIZAÇÃO\nAqui todos os nossos veículos passam por uma vistoria completa de 50 pontos antes de entrar no estoque. Trabalhamos com documentação 100% regularizada, garantia de 90 dias e parceria com os principais bancos para financiamento com as melhores taxas do mercado. Você sai daqui com segurança total na compra.\n\nPASSO 4 – PREÇO BASE\nEsse modelo que você perguntou está a partir de R$[X]. Dependendo da entrada e do prazo de financiamento, consigo te encaixar em uma parcela que cabe no seu bolso.\n\nPASSO 5 – FECHAMENTO\nQue tal você vir aqui dar uma olhada pessoalmente? Posso separar o veículo para você testar hoje. Quando você teria disponibilidade — hoje à tarde ou amanhã?`},
+
+  {id:14,nicho:'Loja de Carros',tag:'Objeção de Preço',title:'Cliente diz que achou mais barato em outro lugar',body:`CLIENTE: "Vi um igual mais barato em outro lugar..."\n\nCOMO RESPONDER:\nEntendo, [Nome]! Mas me deixa te fazer uma pergunta: você já verificou o histórico desse veículo? Tem IPVA em dia, sem multas, sem restrições?\n\nAqui todo carro do nosso estoque tem laudo cautelar aprovado, histórico de manutenção conferido e documentação 100% limpa. Além disso, oferecemos garantia de 90 dias — se qualquer problema mecânico aparecer, a gente resolve sem custo para você.\n\nCarro mais barato sem procedência pode te custar muito mais caro em manutenção ou dor de cabeça jurídica depois. Aqui você paga pela tranquilidade.\n\nO que posso fazer: consigo melhorar as condições de financiamento para ficar mais próximo do que você encontrou. Posso verificar isso agora mesmo — qual seria a entrada que você tem disponível?`},
+
+  {id:15,nicho:'Loja de Móveis Planejados',tag:'Primeiro Contato',title:'Cliente pergunta sobre projeto',body:`PASSO 1 – APRESENTAÇÃO\nOlá! Aqui é [Nome], da [Loja Nome]. Seja bem-vindo(a)! Com quem falo?\n\nPASSO 2 – LEVANTAMENTO\n[Nome], que ótimo! Me conta: qual ambiente você quer mobiliar — cozinha, quarto, sala, escritório? O imóvel é novo ou você vai reformar? E você já tem alguma referência de estilo que goste — moderno, clássico, minimalista?\n\nPASSO 3 – VALORIZAÇÃO\nAqui todo projeto começa com uma visita técnica gratuita ao seu imóvel. Nosso designer faz o levantamento das medidas e já apresenta o projeto 3D em até 5 dias úteis — você vê exatamente como vai ficar antes de aprovar qualquer coisa. Trabalhamos com MDF de alta qualidade, ferragens importadas e acabamentos premium. Prazo de entrega e instalação garantidos em contrato.\n\nPASSO 4 – PREÇO BASE\nProjetos residenciais completos começam a partir de R$[X]. O valor exato depende dos ambientes, dos materiais escolhidos e das medidas — por isso a visita técnica é essencial.\n\nPASSO 5 – FECHAMENTO\nQue tal agendarmos a visita técnica gratuita? Não tem nenhum compromisso — você recebe o projeto 3D e o orçamento, e aí decide com calma. Qual dia desta semana funciona para você?`},
+
+  {id:16,nicho:'Loja de Móveis Planejados',tag:'Objeção de Prazo',title:'Cliente diz que o prazo é longo demais',body:`CLIENTE: "Nossa, esse prazo de entrega é muito longo..."\n\nCOMO RESPONDER:\nEntendo, [Nome]! O prazo assusta à primeira vista, mas deixa eu explicar o porquê.\n\nMóvel planejado não é produto de prateleira — cada peça é fabricada sob medida para o seu espaço, com as suas medidas exatas, na cor e no material que você escolheu. Isso garante que não vai ter folga, não vai ter desnivelamento, e o resultado final vai ser exatamente o que você aprovou no projeto 3D.\n\nFábricas que entregam rápido geralmente usam peças semi-prontas com adaptações. O resultado parece planejado mas não encaixa perfeitamente — e você percebe isso todo dia que olha para o ambiente.\n\nAlém disso, a partir da aprovação do projeto, você tem prazo garantido em contrato. Se atrasar, tem multa para nós. Transparência total.\n\nVale lembrar: você vai usar esses móveis por 15, 20 anos. Vale a pena esperar [X] semanas para ter algo perfeito, não acha?`}
+];
+
+let scriptsFilter='';
+function renderScripts(){
+  const isAdmin=currentUser.isAdmin;
+  const userNiche=currentUser.niche;
+
+  // Update page subtitle and card title
+  if(isAdmin){
+    document.getElementById('scriptsPageSub').textContent='Todos os scripts por nicho — visão completa do administrador';
+    document.getElementById('scriptsCardTitle').textContent='Filtrar por Nicho';
+  } else {
+    document.getElementById('scriptsPageSub').textContent='Scripts prontos para o nicho de '+userNiche;
+    document.getElementById('scriptsCardTitle').textContent='Scripts — '+userNiche;
+  }
+
+  // Admin vê todos os nichos com filtro completo
+  // Cliente vê APENAS os scripts do seu nicho, sem filtro
+  if(isAdmin){
+    const nichos=[...new Set(SCRIPTS.map(s=>s.nicho))];
+    document.getElementById('scriptsFilter').style.display='flex';
+    document.getElementById('scriptsFilter').innerHTML=
+      `<button class="filter-btn ${!scriptsFilter?'active':''}" onclick="setScriptFilter('',this)">Todos</button>`
+      +nichos.map(n=>`<button class="filter-btn ${scriptsFilter===n?'active':''}" onclick="setScriptFilter('${n}',this)">${n}</button>`).join('');
+    const filtered=scriptsFilter?SCRIPTS.filter(s=>s.nicho===scriptsFilter):SCRIPTS;
+    document.getElementById('scriptsGrid').innerHTML=filtered.map(s=>scriptCardHTML(s)).join('');
+  } else {
+    // Cliente — esconde filtro, mostra só o nicho dele
+    document.getElementById('scriptsFilter').style.display='none';
+    const filtered=SCRIPTS.filter(s=>s.nicho===userNiche);
+    if(!filtered.length){
+      document.getElementById('scriptsGrid').innerHTML=`<p style="color:var(--text3);font-size:13px;padding:12px 0">Nenhum script disponível para o seu nicho ainda.</p>`;
+    } else {
+      document.getElementById('scriptsGrid').innerHTML=filtered.map(s=>scriptCardHTML(s)).join('');
+    }
+  }
+}
+function scriptCardHTML(s){
+  return`<div class="script-card" onclick="openScript(${s.id})">
+    ${currentUser.isAdmin?`<div class="script-card-nicho">${s.nicho}</div>`:''}
+    <div class="script-card-title">${s.title}</div>
+    <div class="script-card-preview">${s.body.replace(/\n/g,' ')}</div>
+    <span class="script-card-tag">${s.tag}</span>
+  </div>`;
+}
+function setScriptFilter(n,btn){
+  scriptsFilter=n;
+  document.querySelectorAll('#scriptsFilter .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderScripts();
+}
+function openScript(id){
+  const s=SCRIPTS.find(x=>x.id===id);if(!s)return;
+  document.getElementById('sdNicho').textContent=s.nicho+' · '+s.tag;
+  document.getElementById('sdTitle').textContent=s.title;
+  document.getElementById('sdBody').textContent=s.body;
+  document.getElementById('scriptDetailOverlay').classList.add('show');
+}
+function copyScript(){
+  navigator.clipboard.writeText(document.getElementById('sdBody').textContent)
+    .then(()=>{const b=document.querySelector('.script-copy-btn');b.textContent='✅ COPIADO!';setTimeout(()=>b.textContent='📋 COPIAR SCRIPT',2000);});
+}
+
+// =====================
+// CRM
+// =====================
+const CRM_ETAPAS=[
+  {key:'chegada',   label:'Chegada do Cliente',      icon:'📥', col:'col-chegada'},
+  {key:'agendamento',label:'Agendamento de Reunião', icon:'📅', col:'col-agendamento'},
+  {key:'proposta',  label:'Proposta Enviada',         icon:'📄', col:'col-proposta'},
+  {key:'fechado',   label:'Negócio Fechado',          icon:'✅', col:'col-fechado'},
+  {key:'perdido',   label:'Negócio Perdido',          icon:'❌', col:'col-perdido'},
+  {key:'followup',  label:'Follow Up',                icon:'🔁', col:'col-followup'}
+];
+
+function getCRM(){  return _userData?.crm || []; }
+function saveCRM(data){ _userData.crm=data; saveUserData(); }
+
+function renderCRM(){
+  const leads=getCRM();
+
+  // Summary cards
+  document.getElementById('crmSummary').innerHTML=CRM_ETAPAS.map(e=>{
+    const count=leads.filter(l=>l.etapa===e.key).length;
+    return`<div class="crm-sum-card ${e.col}" onclick="scrollToCol('${e.key}')">
+      <span class="crm-sum-icon">${e.icon}</span>
+      <span class="crm-sum-count">${count}</span>
+      <span class="crm-sum-label">${e.label}</span>
+    </div>`;
+  }).join('');
+
+  // Board columns
+  document.getElementById('crmBoard').innerHTML=CRM_ETAPAS.map(e=>{
+    const colLeads=leads.filter(l=>l.etapa===e.key);
+    return`<div class="crm-col ${e.col}" id="crm-col-${e.key}">
+      <div class="crm-col-header">
+        <span class="crm-col-title">${e.icon} ${e.label}</span>
+        <span class="crm-col-count">${colLeads.length}</span>
+      </div>
+      <div class="crm-col-body">
+        ${colLeads.length?colLeads.map(l=>crmCardHTML(l)).join(''):`<div class="crm-empty">Nenhum lead aqui</div>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function crmCardHTML(l){
+  const origem=l.origem?`<span class="crm-tag">${l.origem}</span>`:'';
+  const objetivo=l.objetivo?`<span class="crm-tag">${l.objetivo.slice(0,20)}</span>`:'';
+  const data=l.data?`<span class="crm-tag">📅 ${formatDate(l.data)}</span>`:'';
+  return`<div class="crm-card">
+    <div class="crm-card-name">${escHtml(l.nome)}</div>
+    <div class="crm-card-wpp">📱 ${escHtml(l.whatsapp||'—')}</div>
+    <div class="crm-card-meta">${origem}${objetivo}${data}</div>
+    ${l.valor?`<div class="crm-card-valor">💰 ${escHtml(l.valor)}</div>`:''}
+    ${l.notas?`<div style="font-size:11px;color:var(--text3);margin-top:6px;line-height:1.4">${escHtml(l.notas.slice(0,80))}${l.notas.length>80?'…':''}</div>`:''}
+    <div class="crm-card-actions">
+      <button class="btn-sm btn-edit" onclick="editCrmLead(${l.id})">✏️ Editar</button>
+      <button class="btn-sm btn-edit" onclick="moveCrmLead(${l.id})" style="color:var(--gold);border-color:rgba(255,215,0,0.3)">↔ Mover</button>
+      <button class="btn-sm btn-del" onclick="deleteCrmLead(${l.id})">🗑️</button>
+    </div>
+  </div>`;
+}
+
+function formatDate(d){
+  if(!d)return'';
+  try{const[y,m,day]=d.split('-');return`${day}/${m}/${y}`;}catch(e){return d;}
+}
+
+function scrollToCol(key){
+  const el=document.getElementById('crm-col-'+key);
+  if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function openCrmModal(lead){
+  document.getElementById('crmModalTitle').textContent=lead?'✏️ EDITAR LEAD':'🎯 NOVO LEAD';
+  document.getElementById('crmLeadId').value=lead?lead.id:'';
+  document.getElementById('crmNome').value=lead?lead.nome:'';
+  document.getElementById('crmWhatsapp').value=lead?lead.whatsapp:'';
+  document.getElementById('crmData').value=lead?lead.data:new Date().toISOString().split('T')[0];
+  document.getElementById('crmOrigem').value=lead?lead.origem:'';
+  document.getElementById('crmObjetivo').value=lead?lead.objetivo:'';
+  document.getElementById('crmValor').value=lead?lead.valor:'';
+  document.getElementById('crmEtapa').value=lead?lead.etapa:'chegada';
+  document.getElementById('crmNotas').value=lead?lead.notas:'';
+  document.getElementById('crmModal').classList.add('show');
+}
+
+function saveCrmLead(){
+  const nome=document.getElementById('crmNome').value.trim();
+  const whatsapp=document.getElementById('crmWhatsapp').value.trim();
+  if(!nome){alert('Preencha o Nome Completo.');return;}
+  if(!whatsapp){alert('Preencha o WhatsApp.');return;}
+
+  const leads=getCRM();
+  const editId=document.getElementById('crmLeadId').value;
+  const lead={
+    id:editId?parseInt(editId):Date.now(),
+    nome,
+    whatsapp,
+    data:document.getElementById('crmData').value,
+    origem:document.getElementById('crmOrigem').value,
+    objetivo:document.getElementById('crmObjetivo').value,
+    valor:document.getElementById('crmValor').value,
+    etapa:document.getElementById('crmEtapa').value,
+    notas:document.getElementById('crmNotas').value,
+    updatedAt:Date.now()
+  };
+
+  if(editId){
+    const idx=leads.findIndex(l=>l.id===parseInt(editId));
+    if(idx!==-1)leads[idx]=lead;
+  }else{
+    leads.unshift(lead);
+  }
+  saveCRM(leads);
+  closeModal('crmModal');
+  renderCRM();
+}
+
+function editCrmLead(id){
+  const lead=getCRM().find(l=>l.id===id);
+  if(lead)openCrmModal(lead);
+}
+
+function moveCrmLead(id){
+  const leads=getCRM();
+  const lead=leads.find(l=>l.id===id);
+  if(!lead)return;
+  const etapas=CRM_ETAPAS.map(e=>e.key);
+  const curr=etapas.indexOf(lead.etapa);
+  const next=etapas[(curr+1)%etapas.length];
+  lead.etapa=next;
+  saveCRM(leads);
+  renderCRM();
+}
+
+function deleteCrmLead(id){
+  if(!confirm('Remover este lead?'))return;
+  saveCRM(getCRM().filter(l=>l.id!==id));
+  renderCRM();
+}
+
+// =====================
+// SIMULATOR
+// =====================
+// =====================
+// SIMULADOR POR NICHO
+// =====================
+const SIM_SCENARIOS_DB = {
+  'Lash Designer': [
+    {
+      id:'lash_preco', label:'Cliente pergunta o preço direto', dificuldade:'Iniciante',
+      contexto:'Uma cliente chegou pelo Instagram perguntando diretamente o valor da extensão de cílios.',
+      msgs:[
+        'Oi! Vi seu Instagram, quanto custa o lash?',
+        'Que estilo de cílios você faz?',
+        'E quanto tempo dura?',
+        'Poxa, achei meio caro. Não tem como diminuir?',
+        'Deixa eu pensar e te aviso...'
+      ],
+      dicas:['Apresente-se antes de responder qualquer coisa','Pergunte o nome e o efeito desejado antes de falar em preço','Mencione a qualidade dos fios e a durabilidade','Passe o valor com contexto e mencione a avaliação gratuita','Foque em agendar, não em negociar desconto']
+    },
+    {
+      id:'lash_retenção', label:'Cliente sumiu após orçamento', dificuldade:'Intermediário',
+      contexto:'Uma cliente pediu o valor há 3 dias e não respondeu mais. Você vai fazer o follow-up.',
+      msgs:[
+        'Oi, tudo bem?',
+        'Ainda tô pensando, tá caro pra mim agora...',
+        'Mas em quanto tempo eu teria que retornar?',
+        'E se eu não gostar do resultado?',
+        'Ok, me manda o endereço que eu vejo de vir essa semana'
+      ],
+      dicas:['Retome a conversa com leveza, sem cobrar resposta','Mostre empatia pela objeção de preço e reforce o valor','Explique a durabilidade e custo-benefício','Fale sobre garantia e satisfação','Facilite o próximo passo — ofereça horário imediato']
+    }
+  ],
+  'Barbearia': [
+    {
+      id:'barb_corte', label:'Cliente pergunta sobre corte e preço', dificuldade:'Iniciante',
+      contexto:'Um cliente chegou pelo WhatsApp perguntando sobre corte de cabelo e valores.',
+      msgs:[
+        'Oi, qual o valor do corte?',
+        'Fazem barba também?',
+        'Quanto tempo fica na agenda esperando?',
+        'Tem horário hoje ainda?',
+        'Blz, posso ir às 17h?'
+      ],
+      dicas:['Cumprimente e pergunte o nome antes de passar preço','Levante a necessidade — estilo desejado, frequência','Valorize os profissionais e produtos usados','Passe o preço com contexto do que está incluso','Confirme o horário e envie o endereço']
+    },
+    {
+      id:'barb_fidelidade', label:'Cliente que foi na concorrência', dificuldade:'Avançado',
+      contexto:'Um cliente antigo voltou a entrar em contato após ter ido a outra barbearia.',
+      msgs:[
+        'Oi, tava em outra barbearia mas não gostei muito',
+        'O corte ficou torto e o cara não ligou pra minha opinião',
+        'Quanto vocês cobram mesmo?',
+        'É mais caro que lá...',
+        'Mas se o resultado for bom, tudo bem. Tem horário amanhã?'
+      ],
+      dicas:['Demonstre que sente falta do cliente e que ele é bem-vindo','Mostre empatia com a experiência ruim dele','Reforce o cuidado e atenção personalizada da sua barbearia','Justifique o valor com qualidade e experiência','Confirme o agendamento com entusiasmo']
+    }
+  ],
+  'Clínica de Estética': [
+    {
+      id:'clin_manchas', label:'Cliente com queixas de manchas', dificuldade:'Iniciante',
+      contexto:'Uma cliente entrou em contato perguntando sobre tratamento para manchas no rosto.',
+      msgs:[
+        'Oi, queria saber sobre tratamento para manchas',
+        'Quantas sessões eu precisaria fazer?',
+        'E qual o valor de cada sessão?',
+        'Nossa, é caro né? Tem parcelamento?',
+        'Ok, posso agendar uma avaliação gratuita?'
+      ],
+      dicas:['Apresente-se e pergunte o nome e tipo de mancha antes de tudo','Explique que o protocolo depende de avaliação — nunca dê número fixo de sessões','Passe o valor de forma contextualizada com parcelamento','Reforce que é investimento em autoestima e resultado duradouro','Confirme a avaliação gratuita e já sugira data']
+    },
+    {
+      id:'clin_corpo', label:'Cliente quer redução de medidas', dificuldade:'Intermediário',
+      contexto:'Uma cliente pergunta sobre tratamentos para redução de medidas e gordura localizada.',
+      msgs:[
+        'Oi! Vocês fazem tratamento para barriga?',
+        'Que procedimentos vocês indicam?',
+        'Funciona mesmo? Tenho medo de não ter resultado',
+        'E quanto tempo leva pra ver resultado?',
+        'Quero agendar! Qual o próximo passo?'
+      ],
+      dicas:['Pergunte a queixa principal e histórico antes de indicar qualquer coisa','Explique as tecnologias usadas com linguagem acessível','Apresente cases e provas sociais para quebrar a desconfiança','Seja realista com prazos — isso gera confiança','Conduza direto para o agendamento da avaliação']
+    }
+  ],
+  'Restaurante & Lanchonete': [
+    {
+      id:'rest_encomenda', label:'Cliente pergunta sobre encomenda', dificuldade:'Iniciante',
+      contexto:'Um cliente entrou em contato perguntando sobre encomendas para evento.',
+      msgs:[
+        'Oi, vocês fazem encomendas?',
+        'É para um aniversário de 50 pessoas',
+        'Que tipo de comida vocês servem?',
+        'E qual o valor por pessoa?',
+        'Tá bom! Como faço pra reservar?'
+      ],
+      dicas:['Cumprimente e pergunte o nome e data do evento','Levante detalhes: número de pessoas, data, restrições alimentares','Apresente o cardápio com entusiasmo e diferenciais','Passe o valor por pessoa e opções de cardápio','Confirme a reserva e solicite sinal de pagamento']
+    },
+    {
+      id:'rest_preco', label:'Cliente compara preço com concorrente', dificuldade:'Avançado',
+      contexto:'Um cliente achou o preço alto e mencionou outro restaurante mais barato.',
+      msgs:[
+        'Vi que em outro restaurante o buffet é mais barato',
+        'Qual a diferença do de vocês?',
+        'Mas o cliente não vai perceber a diferença...',
+        'E se eu fechar com vocês, tem como negociar?',
+        'Ok, me convenceu. Posso fazer uma degustação antes?'
+      ],
+      dicas:['Não critique o concorrente — fale dos seus diferenciais','Explique a procedência dos ingredientes e preparo artesanal','Mostre que o cliente PERCEBE a diferença na experiência','Ofereça algo de valor em vez de desconto — kit, sobremesa','Proponha degustação — quem experimenta, fecha']
+    }
+  ],
+  'Agência de Marketing': [
+    {
+      id:'mkt_leads', label:'Empresa quer mais clientes', dificuldade:'Iniciante',
+      contexto:'Um empresário entrou em contato querendo aumentar o número de clientes.',
+      msgs:[
+        'Oi, preciso de mais clientes pro meu negócio',
+        'O que vocês fazem exatamente?',
+        'Quanto custa o serviço de vocês?',
+        'Já tentei fazer anúncios sozinho e não funcionou',
+        'Quero entender melhor. Posso marcar uma reunião?'
+      ],
+      dicas:['Pergunte o nicho e o maior desafio atual antes de vender','Explique a diferença entre fazer genérico e fazer estratégico','Passe o investimento com ROI esperado, não só o preço','Transforme a experiência negativa em oportunidade de mostrar o diferencial','Confirme a reunião de diagnóstico gratuito com data e hora']
+    },
+    {
+      id:'mkt_resultado', label:'Cliente cético com resultados', dificuldade:'Avançado',
+      contexto:'Um cliente já foi enganado por outra agência e está desconfiante.',
+      msgs:[
+        'Já gastei dinheiro com agência e não tive resultado',
+        'O que vocês fazem de diferente?',
+        'Como eu sei que vocês vão entregar resultado?',
+        'E se eu não tiver resultado no primeiro mês?',
+        'Ok, me passa uma proposta'
+      ],
+      dicas:['Valide a frustração — não minimize a experiência ruim','Explique seu processo com detalhes: diagnóstico, estratégia, relatórios','Apresente cases concretos do mesmo segmento','Proponha metas claras e mensuráveis no contrato','Entregue a proposta com prazo definido e próximo passo claro']
+    }
+  ],
+  'Estúdio de Produção Musical': [
+    {
+      id:'mus_gravacao', label:'Artista quer gravar seu primeiro single', dificuldade:'Iniciante',
+      contexto:'Um cantor iniciante quer gravar sua primeira música e não sabe por onde começar.',
+      msgs:[
+        'Oi, quero gravar uma música mas nunca fui em estúdio',
+        'Que equipamentos vocês usam?',
+        'Quanto custa uma gravação?',
+        'É muito caro pra mim agora. Tem pacote mais simples?',
+        'Posso visitar o estúdio antes de decidir?'
+      ],
+      dicas:['Pergunte o estilo musical e experiência antes de qualquer coisa','Explique os equipamentos de forma acessível, com foco no resultado sonoro','Passe o valor como investimento na carreira, não como custo','Ofereça um pacote de entrada sem abrir mão da qualidade','Convide para visitar — quem conhece o espaço, fecha']
+    },
+    {
+      id:'mus_prazo', label:'Artista com urgência de prazo', dificuldade:'Intermediário',
+      contexto:'Um artista precisa gravar e lançar uma música em 2 semanas.',
+      msgs:[
+        'Preciso gravar e lançar uma música em 2 semanas',
+        'É possível? Quanto custa com urgência?',
+        'Mas eu não tenho arranjo pronto ainda...',
+        'Vocês podem me ajudar com o arranjo também?',
+        'Fechado! Quando podemos começar?'
+      ],
+      dicas:['Avalie a viabilidade com honestidade antes de prometer','Explique o valor da urgência sem parecer estar cobrando a mais','Ofereça produção completa como serviço de valor agregado','Mostre cases de produções rápidas com qualidade','Confirme o projeto com cronograma detalhado']
+    }
+  ],
+  'Loja de Carros': [
+    {
+      id:'carro_preco', label:'Cliente pesquisando preço', dificuldade:'Iniciante',
+      contexto:'Um cliente entrou em contato pelo WhatsApp perguntando sobre um veículo específico.',
+      msgs:[
+        'Oi, vi o carro no site. Qual o valor?',
+        'Tem como negociar?',
+        'Quais são as condições de financiamento?',
+        'E o carro tem algum problema? Foi revisado?',
+        'Posso ir ver o carro hoje à tarde?'
+      ],
+      dicas:['Pergunte o nome e como pretende pagar antes de passar o valor','Não negocie por mensagem — convide para vir pessoalmente','Apresente as parceiras de financiamento com simulação','Reforce a vistoria completa e documentação regularizada','Confirme a visita com horário e endereço']
+    },
+    {
+      id:'carro_troca', label:'Cliente quer fazer troca de veículo', dificuldade:'Avançado',
+      contexto:'Um cliente quer dar o carro usado como parte do pagamento de um novo.',
+      msgs:[
+        'Vocês aceitam troca?',
+        'Tenho um Honda Civic 2018. Quanto me dariam?',
+        'Achei o valor baixo. Em outro lugar me deram mais',
+        'E como fica o financiamento com a troca?',
+        'Me manda uma simulação completa'
+      ],
+      dicas:['Pergunte as condições do veículo antes de dar qualquer valor','Explique como funciona a avaliação presencial — nunca de preço por mensagem','Não entre em guerra de preço com concorrente — venda a segurança','Apresente a simulação completa com entrada (troca) + financiamento','Confirme a avaliação presencial do veículo como próximo passo']
+    }
+  ],
+  'Loja de Móveis Planejados': [
+    {
+      id:'mov_cozinha', label:'Cliente quer cozinha planejada', dificuldade:'Iniciante',
+      contexto:'Um casal entrou em contato querendo fazer a cozinha do apartamento novo.',
+      msgs:[
+        'Oi! Queremos fazer uma cozinha planejada',
+        'Quanto custa uma cozinha em média?',
+        'Que materiais vocês usam?',
+        'E qual o prazo de entrega e instalação?',
+        'Podemos agendar uma visita para orçamento?'
+      ],
+      dicas:['Pergunte o tamanho aproximado e o estilo antes de falar em valores','Nunca passe preço por mensagem — sempre convide para visita técnica','Explique MDF, ferragens e acabamentos de forma simples','Seja transparente com o prazo e reforce a garantia em contrato','Confirme a visita técnica gratuita com data e horário']
+    },
+    {
+      id:'mov_prazo', label:'Cliente reclamando do prazo de entrega', dificuldade:'Avançado',
+      contexto:'Um cliente aprovou o projeto mas está com dúvidas sobre o prazo de 60 dias.',
+      msgs:[
+        '60 dias é muito tempo. Na outra loja falaram 30 dias',
+        'Por que demora tanto assim?',
+        'Mas eu preciso muito antes disso...',
+        'E se atrasar o que acontece?',
+        'Tá, eu entendi. Vamos seguir então'
+      ],
+      dicas:['Não minimize a preocupação — valide e explique o processo','Mostre que prazo menor = qualidade comprometida com exemplos concretos','Verifique se há como antecipar alguma parte da entrega','Reforce a cláusula de multa por atraso no contrato','Parabenize pela decisão e confirme os próximos passos']
+    }
+  ],
+  'Personal Trainer': [
+    {
+      id:'pt_emagrecimento', label:'Cliente quer emagrecer rápido', dificuldade:'Iniciante',
+      contexto:'Um cliente entrou em contato querendo resultados rápidos de emagrecimento.',
+      msgs:[
+        'Oi! Quero emagrecer 10kg em 2 meses. É possível?',
+        'Que tipo de treino vocês fazem?',
+        'Quanto custa o acompanhamento?',
+        'Posso treinar só 2 vezes por semana?',
+        'Me manda mais informações para eu decidir'
+      ],
+      dicas:['Seja honesto sobre expectativas realistas — isso gera confiança','Pergunte o histórico de atividade física e rotina antes de responder','Explique a diferença do treino personalizado x academia genérica','Mostre que 2x por semana é possível com o plano certo','Convide para avaliação física gratuita como próximo passo']
+    },
+    {
+      id:'pt_tempo', label:'Cliente sem tempo para treinar', dificuldade:'Intermediário',
+      contexto:'Um executivo diz que não tem tempo e quer saber se vale a pena contratar personal.',
+      msgs:[
+        'Trabalho muito e mal tenho tempo pra treinar',
+        'Treino de 30 minutos funciona mesmo?',
+        'Quanto custa o personal em casa?',
+        'E se eu viajar a trabalho frequentemente?',
+        'Parece que pode funcionar pra mim. Como começamos?'
+      ],
+      dicas:['Valide o problema — a falta de tempo é real e frequente para executivos','Explique como treinos curtos e intensos são scientificamente eficazes','Passe o investimento como parte da produtividade e saúde','Mostre flexibilidade — online, na empresa, em casa ou academia','Sugira começar com avaliação e primeira sessão experimental']
+    }
+  ],
+  'Nutrição': [
+    {
+      id:'nut_peso', label:'Cliente quer emagrecer com dieta', dificuldade:'Iniciante',
+      contexto:'Uma cliente busca perda de peso e entrou em contato com a nutricionista.',
+      msgs:[
+        'Oi! Quero emagrecer mas odeio fazer dieta restritiva',
+        'Você faz acompanhamento online também?',
+        'Quanto custa a consulta?',
+        'Preciso comprar suplementos?',
+        'Quero marcar! Tem horário essa semana?'
+      ],
+      dicas:['Valide a dificuldade com dietas restritivas — mostre uma abordagem diferente','Explique o acompanhamento online com a mesma qualidade do presencial','Passe o valor com o que está incluso (retorno, ajustes, suporte)','Não empurre suplementos antes da avaliação — isso gera confiança','Confirme o horário e envie o link da consulta online']
+    },
+    {
+      id:'nut_saude', label:'Cliente com condição de saúde específica', dificuldade:'Avançado',
+      contexto:'Um cliente com diabetes tipo 2 quer orientação nutricional especializada.',
+      msgs:[
+        'Tenho diabetes tipo 2. Você atende esse caso?',
+        'Meu médico me encaminhou. O que você pode fazer?',
+        'Tenho medo de cortar muita coisa que gosto',
+        'Quanto tempo leva pra ver diferença nos exames?',
+        'Quero muito melhorar minha saúde. Pode me ajudar?'
+      ],
+      dicas:['Demonstre domínio sobre o caso específico — isso passa segurança','Trabalhe em conjunto com o médico — mencione isso como diferencial','Mostre que a nutrição para diabetes não é sobre restrição total','Seja realista com os prazos e explique a evolução gradual','Desperte o desejo de mudança com exemplos de cases similares']
+    }
+  ],
+  'Advocacia': [
+    {
+      id:'adv_trabalhista', label:'Cliente com problema trabalhista', dificuldade:'Iniciante',
+      contexto:'Um ex-funcionário entrou em contato após ser demitido sem justa causa.',
+      msgs:[
+        'Fui demitido e acho que não recebi tudo que tenho direito',
+        'Quais direitos eu tenho?',
+        'Quanto vocês cobram para entrar com a ação?',
+        'E quanto tempo demora o processo?',
+        'Quero agendar uma consulta. Tem horário hoje?'
+      ],
+      dicas:['Pergunte os detalhes antes de dar qualquer orientação','Mostre segurança técnica sem dar parecer definitivo por mensagem','Explique os honorários com transparência e opções (êxito ou fixo)','Seja realista com os prazos da Justiça do Trabalho','Confirme a consulta com data, horário e o que trazer de documentos']
+    }
+  ],
+  'Academia & Fitness': [
+    {
+      id:'acad_plano', label:'Cliente perguntando sobre planos', dificuldade:'Iniciante',
+      contexto:'Um cliente em potencial está comparando academias e perguntou sobre os planos.',
+      msgs:[
+        'Oi! Quais são os planos e valores?',
+        'Tem aula de musculação e funcional?',
+        'Qual a diferença do plano anual pro mensal?',
+        'Posso fazer uma aula experimental antes?',
+        'Que horários têm vaga essa semana?'
+      ],
+      dicas:['Pergunte o objetivo antes de listar os planos','Apresente as modalidades com base no que o cliente quer','Mostre o custo-benefício do plano anual com clareza','Ofereça a aula experimental como porta de entrada — quem experimenta fica','Confirme o horário da experimental e já registre o contato']
+    }
+  ]
+};
+
+// Fallback genérico para nichos sem cenários mapeados
+const SIM_GENERIC = [
+  {
+    id:'generic_contato', label:'Primeiro contato — cliente pedindo preço', dificuldade:'Iniciante',
+    contexto:'Um cliente entrou em contato perguntando sobre seus serviços e preços.',
+    msgs:[
+      'Oi! Gostaria de saber sobre os serviços e valores',
+      'Que tipo de serviço vocês oferecem exatamente?',
+      'Quanto custa?',
+      'Tá um pouco caro pra mim...',
+      'Posso marcar uma conversa para saber mais?'
+    ],
+    dicas:['Apresente-se e pergunte o nome antes de qualquer coisa','Entenda a necessidade antes de falar em preço','Valorize seu serviço com diferenciais e resultados','Apresente o preço com contexto e condições','Foque em marcar o próximo passo concreto']
+  }
+];
+
+let simState={step:0,scenario:null,scenarioId:null,scores:[]};
+
+function getSimScenariosForUser(){
+  const niche=currentUser?currentUser.niche:'';
+  if(currentUser&&currentUser.isAdmin){
+    // Admin vê todos os cenários
+    return Object.entries(SIM_SCENARIOS_DB).flatMap(([n,list])=>list.map(s=>({...s,nicho:n})));
+  }
+  return (SIM_SCENARIOS_DB[niche]||SIM_GENERIC).map(s=>({...s,nicho:niche}));
+}
+
+function showSimSelector(){
+  document.getElementById('simSelectorCard').style.display='block';
+  document.getElementById('simTrainingCard').style.display='none';
+
+  const scenarios=getSimScenariosForUser();
+  const isAdmin=currentUser&&currentUser.isAdmin;
+
+  const difColors={
+    'Iniciante':'rgba(0,255,157,0.1);border-color:rgba(0,255,157,0.3);color:var(--accent3)',
+    'Intermediário':'rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.3);color:var(--gold)',
+    'Avançado':'rgba(255,107,53,0.1);border-color:rgba(255,107,53,0.3);color:var(--accent2)'
+  };
+
+  document.getElementById('simScenarioList').innerHTML=scenarios.map(s=>`
+    <div class="script-card" onclick="startSimulator('${s.id}')" style="cursor:pointer">
+      ${isAdmin?`<div class="script-card-nicho">${s.nicho}</div>`:''}
+      <div class="script-card-title">${s.label}</div>
+      <div class="script-card-preview" style="margin-top:6px;font-size:12px">${s.contexto}</div>
+      <span class="script-card-tag" style="margin-top:10px;display:inline-block;background:${difColors[s.dificuldade]||'rgba(0,212,255,0.08)'}">${s.dificuldade}</span>
+    </div>`).join('');
+}
+
+function startSimulator(scenarioId){
+  const scenarios=getSimScenariosForUser();
+  const scenario=scenarioId
+    ? scenarios.find(s=>s.id===scenarioId)||scenarios[0]
+    : scenarios[Math.floor(Math.random()*scenarios.length)];
+
+  simState={step:0,scenario,scenarioId:scenario.id,scores:[]};
+
+  document.getElementById('simSelectorCard').style.display='none';
+  document.getElementById('simTrainingCard').style.display='block';
+  document.getElementById('simScenarioTitle').textContent='🎭 '+scenario.label;
+  document.getElementById('simChat').innerHTML='';
+  document.getElementById('simScore').style.display='none';
+  document.getElementById('simInputRow').style.display='flex';
+  document.getElementById('simInput').value='';
+  for(let i=0;i<5;i++){
+    const el=document.getElementById('simStep'+i);
+    if(el)el.className='sim-step'+(i===0?' active':'');
+  }
+
+  // Contexto da situação
+  addSimMsg('feedback',`📋 Situação: ${scenario.contexto}`);
+  addSimMsg('feedback',`💡 Dica do Passo 1: ${scenario.dicas[0]}`);
+  setTimeout(()=>addSimMsg('client',scenario.msgs[0]),600);
+}
+
+function addSimMsg(type,text){
+  const chat=document.getElementById('simChat');
+  const div=document.createElement('div');
+  div.className='sim-msg '+type;
+  div.textContent=text;
+  chat.appendChild(div);
+  chat.scrollTop=chat.scrollHeight;
+}
+
+function sendSimMsg(){
+  const input=document.getElementById('simInput');
+  const text=input.value.trim();
+  if(!text)return;
+  addSimMsg('user',text);
+  input.value='';
+  input.focus();
+
+  const score=evaluateSimStep(simState.step,text);
+  simState.scores.push(score);
+
+  setTimeout(()=>{
+    const fb=score>=70
+      ?`✅ Passo ${simState.step+1} bem executado! ${simState.scenario.dicas[simState.step]}`
+      :`⚠️ Pode melhorar: ${simState.scenario.dicas[simState.step]}`;
+    addSimMsg('feedback '+(score>=70?'':'bad'),fb);
+
+    const doneEl=document.getElementById('simStep'+simState.step);
+    if(doneEl)doneEl.className='sim-step done';
+    simState.step++;
+
+    if(simState.step<simState.scenario.msgs.length){
+      setTimeout(()=>{
+        const actEl=document.getElementById('simStep'+simState.step);
+        if(actEl)actEl.className='sim-step active';
+        addSimMsg('client',simState.scenario.msgs[simState.step]);
+        if(simState.step<simState.scenario.dicas.length){
+          setTimeout(()=>addSimMsg('feedback',`💡 Dica do Passo ${simState.step+1}: ${simState.scenario.dicas[simState.step]}`),400);
+        }
+      },700);
+    } else {
+      setTimeout(finishSimulator,900);
+    }
+  },400);
+}
+
+function evaluateSimStep(step,text){
+  const t=text.toLowerCase();
+  const checks=[
+    // Passo 1 — Apresentação
+    ()=>t.includes('olá')||t.includes('oi')||t.includes('meu nome')||t.includes('aqui é')||t.includes('prazer')||t.includes('tudo bem')||t.includes('como posso'),
+    // Passo 2 — Levantamento
+    ()=>t.includes('?')||(t.includes('você')||t.includes('me conta')||t.includes('qual')||t.includes('como')||t.includes('prefere')||t.includes('busca')||t.includes('objetivo')),
+    // Passo 3 — Valorização
+    ()=>t.includes('qualidade')||t.includes('profissional')||t.includes('resultado')||t.includes('diferencial')||t.includes('experiência')||t.includes('garantia')||t.includes('material')||t.includes('técnica'),
+    // Passo 4 — Preço com contexto
+    ()=>(t.includes('valor')||t.includes('preço')||t.includes('investimento')||t.includes('partir de')||t.includes('parcela'))&&(t.includes('avaliação')||t.includes('depende')||t.includes('consulta')||t.includes('inclui')||t.includes('pacote')||t.length>80),
+    // Passo 5 — Fechamento
+    ()=>t.includes('agendar')||t.includes('horário')||t.includes('quando')||t.includes('semana')||t.includes('dia')||t.includes('disponível')||t.includes('visita')||t.includes('reunião')
+  ];
+  const ok=checks[step]&&checks[step]();
+  return ok?80+Math.floor(Math.random()*20):20+Math.floor(Math.random()*40);
+}
+
+function finishSimulator(){
+  document.getElementById('simInputRow').style.display='none';
+  const scores=simState.scores;
+  const avg=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+  const numEl=document.getElementById('simScoreNum');
+  numEl.textContent=avg;
+  numEl.style.background=avg>=75?'linear-gradient(135deg,var(--accent),var(--accent3))':avg>=50?'linear-gradient(135deg,var(--gold),var(--accent2))':'linear-gradient(135deg,#ff6b35,#ff4444)';
+  numEl.style.webkitBackgroundClip='text';
+  numEl.style.webkitTextFillColor='transparent';
+
+  const passos=['Apresentação','Levantamento','Valorização','Preço','Fechamento'];
+  const fracos=scores.map((s,i)=>s<70?passos[i]:null).filter(Boolean);
+
+  let feedback='';
+  if(avg>=80)feedback='🏆 Excelente! Você dominou as 5 etapas. Seu atendimento está no nível profissional!';
+  else if(avg>=60)feedback=`👍 Bom desempenho! Foque em melhorar: ${fracos.join(', ')}.`;
+  else feedback=`💪 Continue treinando! Os passos que precisam de atenção: ${fracos.join(', ')}. Reveja os scripts da Biblioteca e tente novamente.`;
+
+  document.getElementById('simScoreFeedback').textContent=feedback;
+  document.getElementById('simScore').style.display='block';
+  document.getElementById('simScore').scrollIntoView({behavior:'smooth'});
+}
+
+// =====================
+// DIAGNÓSTICO & REPARO
+// =====================
+function runDiagnostic(){
+  const el=document.getElementById('storageDiag');
+  try{
+    const users=getUsers();
+    let total=0;
+    try{
+      for(let key in localStorage){
+        total+=((localStorage[key].length+key.length)*2);
+      }
+    }catch(e){}
+    const totalKB=(total/1024).toFixed(1);
+    const maxKB=5120;
+    const pct=Math.round((total/1024/maxKB)*100);
+
+    el.innerHTML=`
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:8px">
+        <div style="background:rgba(0,212,255,0.06);border:1px solid var(--border2);border-radius:8px;padding:10px">
+          <div style="font-size:10px;color:var(--text3);margin-bottom:4px">USUÁRIOS CADASTRADOS</div>
+          <div style="font-size:20px;font-weight:700;color:var(--accent)">${users.length}</div>
+        </div>
+        <div style="background:rgba(0,212,255,0.06);border:1px solid var(--border2);border-radius:8px;padding:10px">
+          <div style="font-size:10px;color:var(--text3);margin-bottom:4px">STORAGE USADO</div>
+          <div style="font-size:20px;font-weight:700;color:${pct>80?'#ff6464':pct>50?'var(--gold)':'var(--accent3)'}">${totalKB}KB / 5120KB</div>
+        </div>
+        <div style="background:rgba(0,212,255,0.06);border:1px solid var(--border2);border-radius:8px;padding:10px">
+          <div style="font-size:10px;color:var(--text3);margin-bottom:4px">STATUS</div>
+          <div style="font-size:14px;font-weight:700;color:var(--accent3)">✅ OK</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text3)">
+        Usuários: ${users.map(u=>`<span style="color:var(--text2)">${u.name}</span>`).join(', ')}
+      </div>`;
+  }catch(e){
+    el.innerHTML=`<span style="color:#ff6464">❌ Erro ao ler o storage: ${e.message}</span>`;
+  }
+}
+
+function repairStorage(){
+  try{
+function repairStorage(){ runDiagnostic(); alert('✅ Banco de dados no servidor — sem necessidade de reparo local.\n\nSe houver problema com usuários, use o botão "Exportar" para backup e recrie os usuários pelo painel.'); }
+
+function exportUsers(){
+  try{
+    const data=JSON.stringify({users:_adminUsers.map(({password,...u})=>u), exportedAt:new Date().toISOString()}, null, 2);
+    const blob=new Blob([data],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download='usuarios-'+new Date().toISOString().split('T')[0]+'.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }catch(e){ alert('Erro ao exportar: '+e.message); }
+}
+
+function importUsers(){ alert('Para importar usuários nesta versão, use o painel Admin para criar cada usuário individualmente.\nIsso garante que as senhas são cadastradas com segurança.'); }
+function handleImport(){ importUsers(); }
+
+// fim do app
+</script>
+</body>
+</html>
