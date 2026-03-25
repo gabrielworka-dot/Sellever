@@ -1366,58 +1366,10 @@ function initApp(){
     await loadUserData();
     initApp();
   } catch(e){
-    // Token inválido ou expirado
     authToken = null;
     localStorage.removeItem('mdv_token');
   }
 })();
-
-  const used=currentUser.used||0;
-  const limit=currentUser.limit;
-
-  // sidebar
-  document.getElementById('sideUser').textContent=currentUser.displayName||currentUser.name;
-  document.getElementById('sideNiche').textContent='Nicho: '+currentUser.niche;
-  document.getElementById('usageCount').textContent=used+'/'+(limit===999?'∞':limit);
-  document.getElementById('usageFill').style.width=(limit===999?0:Math.min(100,(used/limit)*100))+'%';
-  renderSideAvatar();
-
-  // admin nav
-  document.getElementById('adminNav').style.display=currentUser.isAdmin?'flex':'none';
-
-  // profile fields
-  document.getElementById('profileDisplayInput').value=currentUser.displayName||currentUser.name;
-  document.getElementById('profileLoginInput').value=currentUser.name;
-  document.getElementById('profilePreviewName').textContent=currentUser.displayName||currentUser.name;
-
-  // Nicho — admin pode ver/editar, cliente vê bloqueado com badge
-  const nicheField=document.getElementById('profileNicheField');
-  if(currentUser.isAdmin){
-    nicheField.innerHTML=`<input type="text" id="profileNicheDisplay" value="${currentUser.niche}" disabled style="opacity:.5;cursor:not-allowed;width:100%;background:rgba(0,212,255,0.04);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:14px;outline:none;" />`;
-  } else {
-    nicheField.innerHTML=`
-      <div style="display:flex;align-items:center;gap:12px;background:rgba(0,212,255,0.04);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;">
-        <span style="font-size:14px;color:var(--text);flex:1">${currentUser.niche}</span>
-        <span style="font-size:10px;font-family:'Orbitron',sans-serif;letter-spacing:1px;background:rgba(255,107,53,0.12);border:1px solid rgba(255,107,53,0.4);color:var(--accent2);padding:3px 10px;border-radius:20px;">🔒 DEFINIDO PELO ADMIN</span>
-      </div>`;
-  }
-  document.getElementById('profilePreviewNiche').textContent=currentUser.niche;
-  renderProfileAvatar();
-
-  // dashboard stats
-  const hist=getHistory();
-  const notes=getNotes();
-  document.getElementById('statTotal').textContent=used;
-  document.getElementById('statRemaining').textContent=limit===999?'∞':Math.max(0,limit-used);
-  document.getElementById('statScripts').textContent=hist.length;
-  document.getElementById('statNotes').textContent=notes.length;
-  document.getElementById('dashNiche').innerHTML=currentUser.niche?`<span class="niche-tag">${currentUser.niche}</span>`:'';
-
-  renderDashHistory(hist);
-  renderHistory(hist);
-  renderNotes();
-  if(currentUser.isAdmin){renderAdminTable();}
-}
 
 // =====================
 // AVATAR HELPERS
@@ -1450,22 +1402,6 @@ function renderProfileAvatar(){
     letterEl.style.display='';
     letterEl.textContent=getInitial();
   }
-}
-
-function handleAvatarUpload(e){
-  const file=e.target.files[0];
-  if(!file)return;
-  if(file.size>2*1024*1024){alert('Imagem muito grande. Use uma menor que 2MB.');return;}
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    const data=ev.target.result;
-    currentUser.avatar=data;
-    try{ await api('PATCH','/api/auth/profile',{avatar:data}); }
-    catch(e){ console.warn('Falha ao salvar avatar:',e.message); }
-    renderSideAvatar();
-    renderProfileAvatar();
-  };
-  reader.readAsDataURL(file);
 }
 
 // =====================
@@ -2498,43 +2434,27 @@ function finishSimulator(){
 // =====================
 function runDiagnostic(){
   const el=document.getElementById('storageDiag');
-  try{
-    const users=getUsers();
-    let total=0;
-    try{
-      for(let key in localStorage){
-        total+=((localStorage[key].length+key.length)*2);
-      }
-    }catch(e){}
-    const totalKB=(total/1024).toFixed(1);
-    const maxKB=5120;
-    const pct=Math.round((total/1024/maxKB)*100);
-
-    el.innerHTML=`
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:8px">
-        <div style="background:rgba(0,212,255,0.06);border:1px solid var(--border2);border-radius:8px;padding:10px">
-          <div style="font-size:10px;color:var(--text3);margin-bottom:4px">USUÁRIOS CADASTRADOS</div>
-          <div style="font-size:20px;font-weight:700;color:var(--accent)">${users.length}</div>
-        </div>
-        <div style="background:rgba(0,212,255,0.06);border:1px solid var(--border2);border-radius:8px;padding:10px">
-          <div style="font-size:10px;color:var(--text3);margin-bottom:4px">STORAGE USADO</div>
-          <div style="font-size:20px;font-weight:700;color:${pct>80?'#ff6464':pct>50?'var(--gold)':'var(--accent3)'}">${totalKB}KB / 5120KB</div>
-        </div>
-        <div style="background:rgba(0,212,255,0.06);border:1px solid var(--border2);border-radius:8px;padding:10px">
-          <div style="font-size:10px;color:var(--text3);margin-bottom:4px">STATUS</div>
-          <div style="font-size:14px;font-weight:700;color:var(--accent3)">✅ OK</div>
-        </div>
+  if(!el) return;
+  el.innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:8px">
+      <div style="background:rgba(0,212,255,0.06);border:1px solid var(--border2);border-radius:8px;padding:10px">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px">USUÁRIOS NO BANCO</div>
+        <div style="font-size:20px;font-weight:700;color:var(--accent)">${_adminUsers.length}</div>
       </div>
-      <div style="font-size:12px;color:var(--text3)">
-        Usuários: ${users.map(u=>`<span style="color:var(--text2)">${u.name}</span>`).join(', ')}
-      </div>`;
-  }catch(e){
-    el.innerHTML=`<span style="color:#ff6464">❌ Erro ao ler o storage: ${e.message}</span>`;
-  }
+      <div style="background:rgba(0,212,255,0.06);border:1px solid var(--border2);border-radius:8px;padding:10px">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px">ARMAZENAMENTO</div>
+        <div style="font-size:14px;font-weight:700;color:var(--accent3)">☁️ Servidor</div>
+      </div>
+      <div style="background:rgba(0,212,255,0.06);border:1px solid var(--border2);border-radius:8px;padding:10px">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px">STATUS</div>
+        <div style="font-size:14px;font-weight:700;color:var(--accent3)">✅ Online</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--text3)">
+      Usuários: ${_adminUsers.map(u=>`<span style="color:var(--text2)">${u.name}</span>`).join(', ')}
+    </div>`;
 }
 
-function repairStorage(){
-  try{
 function repairStorage(){ runDiagnostic(); alert('✅ Banco de dados no servidor — sem necessidade de reparo local.\n\nSe houver problema com usuários, use o botão "Exportar" para backup e recrie os usuários pelo painel.'); }
 
 function exportUsers(){
