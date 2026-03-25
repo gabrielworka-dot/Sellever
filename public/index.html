@@ -921,16 +921,9 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 // STATE
 // =====================
 let currentUser = null;
-let inputType = 'text';
-let noteFilter = '';
-
-// =====================
-// STATE
-// =====================
-let currentUser = null;
 let inputType   = 'text';
 let noteFilter  = '';
-let authToken   = null;   // JWT — persiste no localStorage apenas o token
+let authToken   = null;   // JWT
 let _userData   = null;   // cache local dos dados pessoais
 
 // =====================
@@ -1916,9 +1909,6 @@ const CRM_ETAPAS=[
   {key:'perdido',   label:'Negócio Perdido',          icon:'❌', col:'col-perdido'},
   {key:'followup',  label:'Follow Up',                icon:'🔁', col:'col-followup'}
 ];
-
-function getCRM(){  return _userData?.crm || []; }
-function saveCRM(data){ _userData.crm=data; saveUserData(); }
 
 function renderCRM(){
   const leads=getCRM();
