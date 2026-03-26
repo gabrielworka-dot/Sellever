@@ -1528,7 +1528,11 @@ Responda em português, de forma prática e direta.`;
     document.getElementById('resScript').textContent=(scrM?scrM[1].trim():'—');
     document.getElementById('loadingBox').classList.remove('show');
     document.getElementById('resultBox').classList.add('show');
-    setTimeout(animateResults, 50);
+    setTimeout(()=>{
+      document.querySelectorAll('.result-block').forEach((el,i)=>{
+        setTimeout(()=>el.classList.add('show'),i*120);
+      });
+    }, 50);
 
     // O servidor já incrementou o used — atualiza só o local
     currentUser.used = (currentUser.used||0) + 1;
