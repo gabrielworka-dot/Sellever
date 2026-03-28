@@ -523,7 +523,57 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         </div>
         <div id="inputText"><div class="form-group"><label>Cole o texto da conversa</label><textarea id="convText" placeholder="Ex:&#10;Cliente: Quanto custa o lash?&#10;Atendente: R$150&#10;Cliente: Tá caro, obrigada..."></textarea></div></div>
         <div id="inputDesc" style="display:none"><div class="form-group"><label>Descreva a situação da cliente</label><textarea id="convDesc" placeholder="Ex: A cliente perguntou o preço direto, a atendente passou sem fazer perguntas..."></textarea></div></div>
-        <div id="inputAudio" style="display:none"><div class="form-group"><label>Transcrição do áudio</label><textarea id="convAudio" placeholder="Cole aqui a transcrição do áudio da conversa..."></textarea></div></div>
+        <div id="inputAudio" style="display:none">
+          <!-- Abas: Gravar / Upload -->
+          <div style="display:flex;gap:8px;margin-bottom:16px">
+            <button id="audioTabRec" onclick="switchAudioTab('rec')" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--accent);background:rgba(0,212,255,0.12);color:var(--accent);font-family:'Exo 2',sans-serif;font-size:13px;cursor:pointer;font-weight:600">🎙️ Gravar Áudio</button>
+            <button id="audioTabUp" onclick="switchAudioTab('up')" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--text3);font-family:'Exo 2',sans-serif;font-size:13px;cursor:pointer;font-weight:600">📁 Enviar Arquivo</button>
+          </div>
+
+          <!-- GRAVAR -->
+          <div id="audioTabRecPanel">
+            <div style="background:rgba(0,0,0,0.2);border:1px solid var(--border2);border-radius:12px;padding:20px;text-align:center;margin-bottom:14px">
+              <!-- Visualizador -->
+              <div id="audioVisualizer" style="display:flex;align-items:center;justify-content:center;gap:3px;height:48px;margin-bottom:14px">
+                <span style="color:var(--text3);font-size:13px" id="audioVisualizerMsg">Clique em Gravar para começar</span>
+              </div>
+              <!-- Timer -->
+              <div id="audioTimer" style="font-family:'Orbitron',sans-serif;font-size:22px;font-weight:700;color:var(--accent);margin-bottom:16px;display:none">00:00</div>
+              <!-- Botões -->
+              <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+                <button id="btnStartRec" onclick="startRecording()" style="padding:12px 24px;background:linear-gradient(135deg,rgba(255,70,70,0.2),rgba(255,70,70,0.05));border:1px solid #ff4444;border-radius:10px;color:#ff6464;font-family:'Exo 2',sans-serif;font-size:14px;font-weight:600;cursor:pointer">🔴 Gravar</button>
+                <button id="btnStopRec" onclick="stopRecording()" style="padding:12px 24px;background:rgba(0,212,255,0.1);border:1px solid var(--accent);border-radius:10px;color:var(--accent);font-family:'Exo 2',sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:none">⏹ Parar</button>
+                <button id="btnReRec" onclick="resetRecording()" style="padding:12px 24px;background:rgba(255,255,255,0.04);border:1px solid var(--border2);border-radius:10px;color:var(--text3);font-family:'Exo 2',sans-serif;font-size:14px;cursor:pointer;display:none">🔄 Regravar</button>
+              </div>
+              <!-- Player do áudio gravado -->
+              <div id="audioPlayback" style="display:none;margin-top:14px">
+                <audio id="audioPlayer" controls style="width:100%;border-radius:8px;margin-top:4px"></audio>
+              </div>
+            </div>
+            <!-- Status da transcrição -->
+            <div id="audioRecStatus" style="font-size:12px;color:var(--accent3);text-align:center;margin-bottom:10px;display:none">✅ Áudio gravado! A transcrição foi gerada abaixo.</div>
+          </div>
+
+          <!-- UPLOAD -->
+          <div id="audioTabUpPanel" style="display:none">
+            <div class="img-upload-zone" onclick="document.getElementById('audioFileInput').click()" style="margin-bottom:14px">
+              <span class="img-upload-icon">🎵</span>
+              <span class="img-upload-label">Clique para selecionar o áudio</span>
+              <span class="img-upload-sub">MP3, MP4, WAV, M4A, OGG, WEBM — máx. 25MB</span>
+            </div>
+            <input type="file" id="audioFileInput" accept="audio/*,video/mp4,video/webm" style="display:none" onchange="handleAudioUpload(event)">
+            <div id="audioUploadStatus" style="font-size:12px;color:var(--text3);text-align:center;display:none"></div>
+          </div>
+
+          <!-- Transcrição gerada (comum às duas abas) -->
+          <div class="form-group" style="margin-top:4px">
+            <label style="display:flex;align-items:center;justify-content:space-between">
+              <span>Transcrição do Áudio</span>
+              <span id="audioTranscribeStatus" style="font-size:11px;color:var(--accent3)"></span>
+            </label>
+            <textarea id="convAudio" placeholder="A transcrição aparecerá aqui automaticamente após gravar ou enviar o áudio. Você também pode editar ou colar diretamente..." style="min-height:140px"></textarea>
+          </div>
+        </div>
         <div id="inputHypo" style="display:none"><div class="form-group"><label>Cenário hipotético</label><textarea id="convHypo" placeholder="Ex: Como atender uma cliente que pergunta sobre extensão de cílios pelo Instagram?"></textarea></div></div>
 
         <div id="inputImg" style="display:none">
@@ -2476,6 +2526,185 @@ function exportUsers(){
 
 function importUsers(){ alert('Para importar usuários nesta versão, use o painel Admin para criar cada usuário individualmente.\nIsso garante que as senhas são cadastradas com segurança.'); }
 function handleImport(){ importUsers(); }
+
+// =====================
+// ÁUDIO — GRAVAÇÃO E UPLOAD
+// =====================
+let mediaRecorder = null;
+let audioChunks   = [];
+let recTimerInt   = null;
+let recSeconds    = 0;
+let speechRec     = null;
+let liveTranscript = '';
+
+function switchAudioTab(tab){
+  const isRec = tab === 'rec';
+  document.getElementById('audioTabRecPanel').style.display = isRec ? 'block' : 'none';
+  document.getElementById('audioTabUpPanel').style.display  = isRec ? 'none'  : 'block';
+  document.getElementById('audioTabRec').style.borderColor  = isRec ? 'var(--accent)' : 'var(--border2)';
+  document.getElementById('audioTabRec').style.background   = isRec ? 'rgba(0,212,255,0.12)' : 'transparent';
+  document.getElementById('audioTabRec').style.color        = isRec ? 'var(--accent)' : 'var(--text3)';
+  document.getElementById('audioTabUp').style.borderColor   = isRec ? 'var(--border2)' : 'var(--accent)';
+  document.getElementById('audioTabUp').style.background    = isRec ? 'transparent' : 'rgba(0,212,255,0.12)';
+  document.getElementById('audioTabUp').style.color         = isRec ? 'var(--text3)' : 'var(--accent)';
+}
+
+// ── Gravação com MediaRecorder + Web Speech API ──────────
+async function startRecording(){
+  liveTranscript = '';
+  audioChunks    = [];
+
+  // Pede permissão do microfone
+  let stream;
+  try{
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch(e){
+    alert('Permissão de microfone negada. Habilite o microfone nas configurações do navegador.');
+    return;
+  }
+
+  // MediaRecorder para salvar o arquivo
+  mediaRecorder = new MediaRecorder(stream);
+  mediaRecorder.ondataavailable = e => { if(e.data.size > 0) audioChunks.push(e.data); };
+  mediaRecorder.onstop = () => {
+    const blob = new Blob(audioChunks, { type: 'audio/webm' });
+    const url  = URL.createObjectURL(blob);
+    document.getElementById('audioPlayer').src = url;
+    document.getElementById('audioPlayback').style.display = 'block';
+    document.getElementById('audioRecStatus').style.display = 'block';
+    stream.getTracks().forEach(t => t.stop());
+  };
+  mediaRecorder.start();
+
+  // Web Speech API para transcrição em tempo real
+  if('webkitSpeechRecognition' in window || 'SpeechRecognition' in window){
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    speechRec = new SR();
+    speechRec.lang = 'pt-BR';
+    speechRec.continuous = true;
+    speechRec.interimResults = true;
+    speechRec.onresult = ev => {
+      let interim = '';
+      for(let i = ev.resultIndex; i < ev.results.length; i++){
+        if(ev.results[i].isFinal){
+          liveTranscript += ev.results[i][0].transcript + ' ';
+        } else {
+          interim = ev.results[i][0].transcript;
+        }
+      }
+      document.getElementById('convAudio').value = liveTranscript + interim;
+      document.getElementById('audioTranscribeStatus').textContent = '🎙️ Transcrevendo...';
+    };
+    speechRec.onend = () => {
+      document.getElementById('audioTranscribeStatus').textContent = liveTranscript ? '✅ Transcrição concluída' : '';
+    };
+    speechRec.start();
+  } else {
+    document.getElementById('audioTranscribeStatus').textContent = '⚠️ Transcrição automática não suportada neste browser. Use o Chrome.';
+  }
+
+  // Timer
+  recSeconds = 0;
+  document.getElementById('audioTimer').style.display = 'block';
+  document.getElementById('audioVisualizerMsg').style.display = 'none';
+  recTimerInt = setInterval(() => {
+    recSeconds++;
+    const m = String(Math.floor(recSeconds/60)).padStart(2,'0');
+    const s = String(recSeconds%60).padStart(2,'0');
+    document.getElementById('audioTimer').textContent = `${m}:${s}`;
+    animateBars();
+  }, 1000);
+
+  // UI
+  document.getElementById('btnStartRec').style.display = 'none';
+  document.getElementById('btnStopRec').style.display  = 'inline-block';
+  document.getElementById('btnReRec').style.display    = 'none';
+  document.getElementById('audioPlayback').style.display = 'none';
+  document.getElementById('audioRecStatus').style.display = 'none';
+}
+
+function stopRecording(){
+  if(mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+  if(speechRec) try{ speechRec.stop(); }catch(e){}
+  clearInterval(recTimerInt);
+
+  // UI
+  document.getElementById('btnStartRec').style.display = 'none';
+  document.getElementById('btnStopRec').style.display  = 'none';
+  document.getElementById('btnReRec').style.display    = 'inline-block';
+  clearBars();
+}
+
+function resetRecording(){
+  document.getElementById('convAudio').value = '';
+  document.getElementById('audioTimer').textContent = '00:00';
+  document.getElementById('audioTimer').style.display = 'none';
+  document.getElementById('audioVisualizerMsg').style.display = 'inline';
+  document.getElementById('audioPlayback').style.display = 'none';
+  document.getElementById('audioRecStatus').style.display = 'none';
+  document.getElementById('audioTranscribeStatus').textContent = '';
+  document.getElementById('btnStartRec').style.display = 'inline-block';
+  document.getElementById('btnStopRec').style.display  = 'none';
+  document.getElementById('btnReRec').style.display    = 'none';
+  liveTranscript = '';
+  audioChunks    = [];
+}
+
+function animateBars(){
+  const viz = document.getElementById('audioVisualizer');
+  viz.innerHTML = Array.from({length:16}, (_,i) => {
+    const h = 8 + Math.random() * 36;
+    return `<div style="width:4px;height:${h}px;background:var(--accent);border-radius:2px;transition:height .1s"></div>`;
+  }).join('');
+}
+function clearBars(){
+  document.getElementById('audioVisualizer').innerHTML =
+    '<span style="color:var(--text3);font-size:13px">Gravação finalizada</span>';
+}
+
+// ── Upload de arquivo de áudio ───────────────────────────
+function handleAudioUpload(e){
+  const file = e.target.files[0];
+  if(!file) return;
+
+  const maxSize = 25 * 1024 * 1024;
+  if(file.size > maxSize){ alert('Arquivo muito grande. Máximo 25MB.'); return; }
+
+  const statusEl = document.getElementById('audioUploadStatus');
+  statusEl.style.display = 'block';
+  statusEl.style.color   = 'var(--accent3)';
+  statusEl.textContent   = '⏳ Processando áudio...';
+
+  // Cria URL para reprodução
+  const url = URL.createObjectURL(file);
+
+  // Tenta transcrever com Web Speech API via reprodução
+  // Como a Web Speech API só funciona com microfone ao vivo,
+  // para upload mostramos o player e pedimos que o usuário edite a transcrição
+  statusEl.textContent = '✅ Áudio carregado! Reproduza abaixo e edite a transcrição se necessário.';
+  statusEl.style.color = 'var(--accent3)';
+
+  // Adiciona player abaixo do upload
+  let playerEl = document.getElementById('audioUploadPlayer');
+  if(!playerEl){
+    playerEl = document.createElement('div');
+    playerEl.id = 'audioUploadPlayer';
+    playerEl.style.marginTop = '12px';
+    document.getElementById('audioTabUpPanel').appendChild(playerEl);
+  }
+  playerEl.innerHTML = `
+    <audio controls style="width:100%;border-radius:8px">
+      <source src="${url}" type="${file.type}">
+    </audio>
+    <div style="font-size:11px;color:var(--text3);margin-top:8px;text-align:center">
+      Ouça o áudio e transcreva manualmente no campo abaixo, ou use o Chrome para transcrição automática via gravação.
+    </div>`;
+
+  // Se a API de reconhecimento estiver disponível, tenta transcrever
+  if('webkitSpeechRecognition' in window || 'SpeechRecognition' in window){
+    document.getElementById('audioTranscribeStatus').textContent = '💡 Dica: para transcrição automática, use a aba Gravar e reproduza o áudio perto do microfone.';
+  }
+}
 
 // fim do app
 </script>
